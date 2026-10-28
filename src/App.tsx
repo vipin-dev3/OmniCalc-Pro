@@ -96,7 +96,7 @@ export const AppContent: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 font-bold text-[var(--text-secondary)]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            CALC//LAB
+            OmniCalc Pro
           </span>
           <span>•</span>
           <span className="hidden sm:inline">IEEE-754 • BigInt64 • MathJS v14</span>

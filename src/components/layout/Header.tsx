@@ -22,8 +22,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
         {/* Precision Geometric Monogram */}
         <div className="relative w-9 h-9 rounded-xl bg-[var(--key-default)] border border-[var(--border-highlight)] flex items-center justify-center shadow-md overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-          <span className="font-mono font-black text-base tracking-tighter text-[var(--accent-primary)] z-10">
-            Ω
+          <span className="font-mono font-black text-sm tracking-tighter text-[var(--accent-primary)] z-10">
+            OC
           </span>
           <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-ping opacity-75" />
         </div>
@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-mono font-black text-base md:text-lg tracking-tight text-[var(--text-primary)]">
-              CALC<span className="text-[var(--accent-primary)]">//</span>LAB
+              OmniCalc <span className="text-[var(--accent-primary)] font-black">Pro</span>
             </h1>
             <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[var(--key-function)] text-[var(--accent-primary)] border border-[var(--border-color)] font-semibold tracking-wider">
               PRECISION
