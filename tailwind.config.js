@@ -8,30 +8,28 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        mono: ['"JetBrains Mono"', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+        mono: ['"JetBrains Mono"', 'Menlo', 'Monaco', 'Consolas', '"Courier New"', 'monospace'],
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
-        neon: {
-          cyan: '#00f3ff',
-          magenta: '#ff007f',
-          yellow: '#ffe600',
-          purple: '#b026ff',
-          green: '#00ff66',
+        // Semantic color mapping matching our industrial design themes
+        app: {
+          bg: 'var(--bg-main)',
+          card: 'var(--bg-card)',
+          header: 'var(--bg-header)',
+          border: 'var(--border-color)',
+          accent: 'var(--accent-primary)',
+          'accent-hover': 'var(--accent-hover)',
         }
       },
-      animation: {
-        'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-      },
-      keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 5px rgba(0, 243, 255, 0.4), 0 0 10px rgba(0, 243, 255, 0.2)' },
-          '100%': { boxShadow: '0 0 15px rgba(0, 243, 255, 0.8), 0 0 25px rgba(0, 243, 255, 0.4)' },
-        }
+      boxShadow: {
+        'keycap': '0 2px 0 var(--key-shadow), 0 3px 6px rgba(0, 0, 0, 0.25)',
+        'keycap-active': '0 0 0 var(--key-shadow), inset 0 2px 4px rgba(0, 0, 0, 0.4)',
+        'keycap-light': '0 2px 0 rgba(0, 0, 0, 0.15), 0 3px 5px rgba(0, 0, 0, 0.08)',
+        'display-inset': 'inset 0 2px 6px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        'glass-panel': '0 8px 32px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-color)',
       }
     },
   },
   plugins: [],
 }
-

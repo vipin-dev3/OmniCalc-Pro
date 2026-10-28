@@ -11,7 +11,7 @@ import { ConverterMode } from './components/modes/ConverterMode';
 import { FinancialMode } from './components/modes/FinancialMode';
 import { GraphingMode } from './components/modes/GraphingMode';
 import { useHistory } from './context/HistoryContext';
-import { Github, Heart, Sparkles } from 'lucide-react';
+import { Github, Activity, Terminal } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<CalculatorMode>('scientific');
@@ -55,13 +55,13 @@ export const AppContent: React.FC = () => {
   }, [toggleDrawer]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
-      {/* Top Header */}
+    <div className="min-h-screen flex flex-col justify-between selection:bg-[var(--accent-primary)] selection:text-[var(--accent-text)] transition-colors duration-200">
+      {/* Top Precision Header */}
       <Header onOpenShortcuts={() => setIsShortcutsOpen(true)} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center py-4">
-        {/* Mode Navigation Bar */}
+      <main className="flex-1 flex flex-col items-center py-3 md:py-5">
+        {/* Mode Navigation Switchboard */}
         <ModeNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
 
         {/* Animated Mode Transition Container */}
@@ -69,10 +69,10 @@ export const AppContent: React.FC = () => {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentMode}
-              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              initial={{ opacity: 0, y: 8, scale: 0.995 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.99 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              exit={{ opacity: 0, y: -8, scale: 0.995 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
               className="w-full flex justify-center"
             >
               {currentMode === 'scientific' && <ScientificMode />}
@@ -85,37 +85,40 @@ export const AppContent: React.FC = () => {
         </div>
       </main>
 
-      {/* History Drawer */}
+      {/* Paper Tape History Drawer */}
       <HistoryDrawer />
 
-      {/* Keyboard Shortcuts Modal */}
+      {/* Keyboard Shortcuts Reference Modal */}
       <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
 
-      {/* App Footer */}
-      <footer className="w-full py-4 px-6 border-t border-slate-800/80 bg-slate-950/40 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Hardware Telemetry Footer */}
+      <footer className="w-full py-3 px-6 border-t border-[var(--border-color)] bg-[var(--bg-header)] font-mono text-[11px] text-[var(--text-muted)] flex flex-col sm:flex-row items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-400">OmniCalc Pro</span>
+          <span className="flex items-center gap-1.5 font-bold text-[var(--text-secondary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            CALC//LAB
+          </span>
           <span>•</span>
-          <span>React + Vite + Math.js + Tailwind</span>
+          <span className="hidden sm:inline">IEEE-754 • BigInt64 • MathJS v14</span>
+          <span className="hidden md:inline">• 44.1kHz WebAudio Click</span>
         </div>
 
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/vipin-dev3/Advanced-Calculator"
+            href="https://github.com/vipin-dev3/OmniCalc-Pro"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           >
             <Github className="w-3.5 h-3.5" />
-            <span>GitHub Repository</span>
+            <span>Source Code</span>
           </a>
           <span>•</span>
-          <span className="flex items-center gap-1">
-            Built with <Heart className="w-3 h-3 text-rose-500 fill-rose-500 inline" /> for precision
+          <span className="text-[10px] text-[var(--text-muted)]">
+            Precision Computational Instrument
           </span>
         </div>
       </footer>
     </div>
   );
 };
-

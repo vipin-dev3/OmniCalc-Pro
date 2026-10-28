@@ -1,17 +1,49 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeType } from '../types/calculator';
 
+export interface ThemeOption {
+  id: ThemeType;
+  label: string;
+  tagline: string;
+  previewColor: string;
+  bgHex: string;
+}
+
 interface ThemeContextType {
   theme: ThemeType;
   setTheme: (theme: ThemeType) => void;
-  availableThemes: { id: ThemeType; label: string; previewColor: string; bgClass: string }[];
+  availableThemes: ThemeOption[];
 }
 
-const THEMES: { id: ThemeType; label: string; previewColor: string; bgClass: string }[] = [
-  { id: 'modern-dark', label: 'Modern Dark', previewColor: '#6366f1', bgClass: 'bg-slate-950' },
-  { id: 'clean-light', label: 'Clean Light', previewColor: '#0ea5e9', bgClass: 'bg-slate-50' },
-  { id: 'cyberpunk-neon', label: 'Cyberpunk Neon', previewColor: '#00f3ff', bgClass: 'bg-black' },
-  { id: 'oled-black', label: 'Minimal OLED', previewColor: '#eab308', bgClass: 'bg-black' },
+export const THEMES: ThemeOption[] = [
+  {
+    id: 'modern-dark',
+    label: 'Obsidian Titanium',
+    tagline: 'Precision dark instrument with aerospace amber accents',
+    previewColor: '#f59e0b',
+    bgHex: '#0b0e14',
+  },
+  {
+    id: 'clean-light',
+    label: 'Braun ET66 / Bauhaus',
+    tagline: 'Dieter Rams tribute: warm bone chassis, charcoal & orange keys',
+    previewColor: '#ea580c',
+    bgHex: '#ece6dc',
+  },
+  {
+    id: 'cyberpunk-neon',
+    label: 'Tokyo VFD 1984',
+    tagline: 'Retro-future phosphor emerald CRT & oscilloscope terminal',
+    previewColor: '#10b981',
+    bgHex: '#060b09',
+  },
+  {
+    id: 'oled-black',
+    label: 'Nordic Monolith',
+    tagline: 'Scandinavian dark precision with arctic ice accents',
+    previewColor: '#38bdf8',
+    bgHex: '#000000',
+  },
 ];
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -52,4 +84,3 @@ export const useTheme = () => {
   if (!context) throw new Error('useTheme must be used within a ThemeProvider');
   return context;
 };
-

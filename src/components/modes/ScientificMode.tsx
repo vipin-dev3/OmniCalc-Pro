@@ -5,7 +5,7 @@ import { evaluateExpression, formatNumber } from '../../utils/mathParser';
 import { useHistory } from '../../context/HistoryContext';
 import { useToast } from '../../context/ToastContext';
 import { AngleUnit } from '../../types/calculator';
-import { Delete, RotateCcw } from 'lucide-react';
+import { Delete, RotateCcw, Cpu } from 'lucide-react';
 
 export const ScientificMode: React.FC = () => {
   const { addHistory, recallTarget } = useHistory();
@@ -111,7 +111,7 @@ export const ScientificMode: React.FC = () => {
         break;
       case 'MS':
         setMemory(currentVal);
-        showToast(`Stored ${formatNumber(currentVal)} to Memory (MS)`, 'info');
+        showToast(`Stored ${formatNumber(currentVal)} in Memory (MS)`, 'info');
         break;
       case 'M+':
         setMemory((prev) => prev + currentVal);
@@ -127,13 +127,12 @@ export const ScientificMode: React.FC = () => {
   // Physical keyboard support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if user is typing in an input or textarea
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) return;
 
       if (e.key >= '0' && e.key <= '9') {
         insertText(e.key);
       } else if (['+', '-', '*', '/', '(', ')', '^', '%', '.'].includes(e.key)) {
-        insertText(e.key === '*' ? '×' : e.key === '/' ? '÷' : e.key);
+        insertText(e.key === '*' ? '×' : e.key === '/' ? '÷' : e.key === '-' ? '−' : e.key);
       } else if (e.key === 'Enter' || e.key === '=') {
         e.preventDefault();
         handleCalculate();
@@ -157,400 +156,391 @@ export const ScientificMode: React.FC = () => {
   }, [insertText, handleCalculate, handleBackspace, handleClear, expression.length]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 flex flex-col gap-4">
-      {/* Display Screen */}
-      <DisplayScreen
-        expression={expression}
-        cursorPosition={cursorPos}
-        previewResult={previewResult}
-        finalResult={finalResult}
-        error={error}
-        angleUnit={angleUnit}
-        onToggleAngleUnit={() => setAngleUnit((prev) => (prev === 'deg' ? 'rad' : 'deg'))}
-        hasMemory={memory !== 0}
-        onCursorMove={setCursorPos}
-        onClear={handleClear}
-        onBackspace={handleBackspace}
-      />
+    <div className="w-full max-w-4xl mx-auto px-4 flex flex-col gap-3">
+      {/* Outer Machined Chassis */}
+      <div className="hardware-chassis p-4 md:p-6 rounded-3xl space-y-4">
+        {/* Recessed Instrument Display Screen */}
+        <DisplayScreen
+          expression={expression}
+          cursorPosition={cursorPos}
+          previewResult={previewResult}
+          finalResult={finalResult}
+          error={error}
+          angleUnit={angleUnit}
+          onToggleAngleUnit={() => setAngleUnit((prev) => (prev === 'deg' ? 'rad' : 'deg'))}
+          hasMemory={memory !== 0}
+          onCursorMove={setCursorPos}
+          onClear={handleClear}
+          onBackspace={handleBackspace}
+        />
 
-      {/* Function and Memory Ribbon */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setIsSecond(!isSecond)}
-            className={`px-3 py-1.5 rounded-lg font-bold border transition-colors ${
-              isSecond
-                ? 'bg-indigo-600 text-white border-indigo-400'
-                : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 border-slate-700/50'
-            }`}
-          >
-            2nd
-          </button>
-          <button
-            onClick={() => setIsHyperbolic(!isHyperbolic)}
-            className={`px-3 py-1.5 rounded-lg font-bold border transition-colors ${
-              isHyperbolic
-                ? 'bg-indigo-600 text-white border-indigo-400'
-                : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 border-slate-700/50'
-            }`}
-          >
-            hyp
-          </button>
-          <button
-            onClick={() => setAngleUnit((u) => (u === 'deg' ? 'rad' : 'deg'))}
-            className="px-3 py-1.5 rounded-lg font-mono font-semibold bg-slate-800/60 text-indigo-300 hover:bg-slate-700/60 border border-slate-700/50 transition-colors"
-          >
-            {angleUnit.toUpperCase()}
-          </button>
+        {/* Function Modifiers & Memory Register Ribbon */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)] text-xs font-mono">
+          {/* Shift / Angle Modifiers */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setIsSecond(!isSecond)}
+              className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
+                isSecond
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
+                  : 'bg-[var(--key-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
+              }`}
+            >
+              2nd
+            </button>
+            <button
+              onClick={() => setIsHyperbolic(!isHyperbolic)}
+              className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
+                isHyperbolic
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
+                  : 'bg-[var(--key-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
+              }`}
+            >
+              hyp
+            </button>
+            <button
+              onClick={() => setAngleUnit((u) => (u === 'deg' ? 'rad' : 'deg'))}
+              className="px-2.5 py-1 rounded-lg font-bold bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-color)]"
+            >
+              {angleUnit.toUpperCase()}
+            </button>
+          </div>
+
+          {/* Memory Register Bar */}
+          <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1 mr-1 text-[10px] text-[var(--text-muted)] border-r border-[var(--border-color)] pr-2">
+              <span>REG</span>
+              <span className="font-bold text-[var(--text-secondary)]">
+                {memory !== 0 ? formatNumber(memory) : '0'}
+              </span>
+            </div>
+            <button
+              onClick={() => handleMemory('MC')}
+              disabled={memory === 0}
+              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 border border-[var(--border-color)]"
+            >
+              MC
+            </button>
+            <button
+              onClick={() => handleMemory('MR')}
+              disabled={memory === 0}
+              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 border border-[var(--border-color)]"
+            >
+              MR
+            </button>
+            <button
+              onClick={() => handleMemory('M+')}
+              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
+            >
+              M+
+            </button>
+            <button
+              onClick={() => handleMemory('M-')}
+              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
+            >
+              M-
+            </button>
+            <button
+              onClick={() => handleMemory('MS')}
+              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--accent-primary)] border border-[var(--border-color)]"
+            >
+              MS
+            </button>
+          </div>
         </div>
 
-        {/* Memory Bar */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => handleMemory('MC')}
-            disabled={memory === 0}
-            className="px-2.5 py-1 rounded bg-slate-800/40 hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 disabled:opacity-30 border border-slate-700/30"
-          >
-            MC
-          </button>
-          <button
-            onClick={() => handleMemory('MR')}
-            disabled={memory === 0}
-            className="px-2.5 py-1 rounded bg-slate-800/40 hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 disabled:opacity-30 border border-slate-700/30"
-          >
-            MR
-          </button>
-          <button
-            onClick={() => handleMemory('M+')}
-            className="px-2.5 py-1 rounded bg-slate-800/40 hover:bg-slate-700/60 text-slate-300 hover:text-white border border-slate-700/30"
-          >
-            M+
-          </button>
-          <button
-            onClick={() => handleMemory('M-')}
-            className="px-2.5 py-1 rounded bg-slate-800/40 hover:bg-slate-700/60 text-slate-300 hover:text-white border border-slate-700/30"
-          >
-            M-
-          </button>
-          <button
-            onClick={() => handleMemory('MS')}
-            className="px-2.5 py-1 rounded bg-slate-800/40 hover:bg-slate-700/60 text-slate-300 hover:text-white border border-slate-700/30"
-          >
-            MS
-          </button>
-        </div>
-      </div>
-
-      {/* Main Scientific Keypad Grid */}
-      <div className="grid grid-cols-5 md:grid-cols-7 gap-2">
-        {/* Advanced Scientific Functions Column 1 & 2 */}
-        <KeypadButton
-          label={
-            isHyperbolic
-              ? isSecond
-                ? 'asinh'
-                : 'sinh'
-              : isSecond
-              ? 'asin'
-              : 'sin'
-          }
-          variant="function"
-          onClick={() =>
-            insertText(
+        {/* Sculpted Scientific Keypad Grid */}
+        <div className="grid grid-cols-5 md:grid-cols-7 gap-2 md:gap-2.5">
+          {/* Row 1: Trigonometry & Clears */}
+          <KeypadButton
+            label={
               isHyperbolic
-                ? isSecond
-                  ? 'asinh('
-                  : 'sinh('
-                : isSecond
-                ? 'asin('
-                : 'sin('
-            )
-          }
-        />
-        <KeypadButton
-          label={
-            isHyperbolic
-              ? isSecond
-                ? 'acosh'
-                : 'cosh'
-              : isSecond
-              ? 'acos'
-              : 'cos'
-          }
-          variant="function"
-          onClick={() =>
-            insertText(
-              isHyperbolic
-                ? isSecond
-                  ? 'acosh('
-                  : 'cosh('
-                : isSecond
-                ? 'acos('
-                : 'cos('
-            )
-          }
-        />
-        <KeypadButton
-          label={
-            isHyperbolic
-              ? isSecond
-                ? 'atanh'
-                : 'tanh'
-              : isSecond
-              ? 'atan'
-              : 'tan'
-          }
-          variant="function"
-          onClick={() =>
-            insertText(
-              isHyperbolic
-                ? isSecond
-                  ? 'atanh('
-                  : 'tanh('
-                : isSecond
-                ? 'atan('
-                : 'tan('
-            )
-          }
-        />
-        <KeypadButton
-          label={isSecond ? '10^x' : 'log₁₀'}
-          variant="function"
-          onClick={() => insertText(isSecond ? '10^(' : 'log10(')}
-        />
-        <KeypadButton
-          label={isSecond ? 'e^x' : 'ln'}
-          variant="function"
-          onClick={() => insertText(isSecond ? 'e^(' : 'ln(')}
-        />
-        <KeypadButton
-          label="AC"
-          variant="danger"
-          hotkey="Esc"
-          onClick={handleClear}
-          className="col-span-1"
-        />
-        <KeypadButton
-          label={<Delete className="w-5 h-5" />}
-          variant="function"
-          hotkey="⌫"
-          onClick={handleBackspace}
-        />
-
-        {/* Row 2 */}
-        <KeypadButton
-          label={isSecond ? 'x³' : 'x²'}
-          variant="function"
-          onClick={() => insertText(isSecond ? '^3' : '^2')}
-        />
-        <KeypadButton
-          label={isSecond ? '³√x' : '√x'}
-          variant="function"
-          onClick={() => insertText(isSecond ? 'cbrt(' : 'sqrt(')}
-        />
-        <KeypadButton
-          label="xʸ"
-          variant="function"
-          hotkey="^"
-          onClick={() => insertText('^(')}
-        />
-        <KeypadButton
-          label="n!"
-          variant="function"
-          onClick={() => insertText('!')}
-        />
-        <KeypadButton
-          label="("
-          variant="function"
-          hotkey="("
-          onClick={() => insertText('(')}
-        />
-        <KeypadButton
-          label=")"
-          variant="function"
-          hotkey=")"
-          onClick={() => insertText(')')}
-        />
-        <KeypadButton
-          label="÷"
-          variant="operator"
-          hotkey="/"
-          onClick={() => insertText('÷')}
-        />
-
-        {/* Row 3 */}
-        <KeypadButton
-          label="π"
-          variant="function"
-          subLabel="3.1415"
-          onClick={() => insertText('pi')}
-        />
-        <KeypadButton
-          label="e"
-          variant="function"
-          subLabel="2.7182"
-          onClick={() => insertText('e')}
-        />
-        <KeypadButton
-          label="ϕ"
-          variant="function"
-          subLabel="1.618"
-          onClick={() => insertText('phi')}
-        />
-        <KeypadButton
-          label="7"
-          variant="default"
-          hotkey="7"
-          onClick={() => insertText('7')}
-        />
-        <KeypadButton
-          label="8"
-          variant="default"
-          hotkey="8"
-          onClick={() => insertText('8')}
-        />
-        <KeypadButton
-          label="9"
-          variant="default"
-          hotkey="9"
-          onClick={() => insertText('9')}
-        />
-        <KeypadButton
-          label="×"
-          variant="operator"
-          hotkey="*"
-          onClick={() => insertText('×')}
-        />
-
-        {/* Row 4 */}
-        <KeypadButton
-          label="|x|"
-          variant="function"
-          onClick={() => insertText('abs(')}
-        />
-        <KeypadButton
-          label="mod"
-          variant="function"
-          onClick={() => insertText(' mod ')}
-        />
-        <KeypadButton
-          label="1/x"
-          variant="function"
-          onClick={() => insertText('1/(')}
-        />
-        <KeypadButton
-          label="4"
-          variant="default"
-          hotkey="4"
-          onClick={() => insertText('4')}
-        />
-        <KeypadButton
-          label="5"
-          variant="default"
-          hotkey="5"
-          onClick={() => insertText('5')}
-        />
-        <KeypadButton
-          label="6"
-          variant="default"
-          hotkey="6"
-          onClick={() => insertText('6')}
-        />
-        <KeypadButton
-          label="−"
-          variant="operator"
-          hotkey="-"
-          onClick={() => insertText('−')}
-        />
-
-        {/* Row 5 */}
-        <KeypadButton
-          label="log₂"
-          variant="function"
-          onClick={() => insertText('log2(')}
-        />
-        <KeypadButton
-          label="%"
-          variant="function"
-          hotkey="%"
-          onClick={() => insertText('%')}
-        />
-        <KeypadButton
-          label="EXP"
-          variant="function"
-          onClick={() => insertText('e+')}
-        />
-        <KeypadButton
-          label="1"
-          variant="default"
-          hotkey="1"
-          onClick={() => insertText('1')}
-        />
-        <KeypadButton
-          label="2"
-          variant="default"
-          hotkey="2"
-          onClick={() => insertText('2')}
-        />
-        <KeypadButton
-          label="3"
-          variant="default"
-          hotkey="3"
-          onClick={() => insertText('3')}
-        />
-        <KeypadButton
-          label="+"
-          variant="operator"
-          hotkey="+"
-          onClick={() => insertText('+')}
-        />
-
-        {/* Row 6 */}
-        <KeypadButton
-          label="±"
-          variant="function"
-          onClick={() => {
-            if (expression.startsWith('-(') && expression.endsWith(')')) {
-              setExpression(expression.slice(2, -1));
-            } else {
-              setExpression(`-(${expression})`);
+                ? isSecond ? 'asinh' : 'sinh'
+                : isSecond ? 'asin' : 'sin'
             }
-          }}
-        />
-        <KeypadButton
-          label="rnd"
-          variant="function"
-          onClick={() => insertText(Math.random().toFixed(4))}
-        />
-        <KeypadButton
-          label="ANS"
-          variant="function"
-          onClick={() => {
-            if (finalResult) insertText(finalResult);
-          }}
-        />
-        <KeypadButton
-          label="0"
-          variant="default"
-          hotkey="0"
-          className="col-span-1"
-          onClick={() => insertText('0')}
-        />
-        <KeypadButton
-          label="."
-          variant="default"
-          hotkey="."
-          onClick={() => insertText('.')}
-        />
-        <KeypadButton
-          label="="
-          variant="action"
-          hotkey="Enter"
-          className="col-span-2 text-xl font-bold"
-          onClick={handleCalculate}
-        />
+            secondaryLabel={!isSecond ? (isHyperbolic ? 'asinh' : 'sin⁻¹') : undefined}
+            variant="function"
+            onClick={() =>
+              insertText(
+                isHyperbolic
+                  ? isSecond ? 'asinh(' : 'sinh('
+                  : isSecond ? 'asin(' : 'sin('
+              )
+            }
+          />
+          <KeypadButton
+            label={
+              isHyperbolic
+                ? isSecond ? 'acosh' : 'cosh'
+                : isSecond ? 'acos' : 'cos'
+            }
+            secondaryLabel={!isSecond ? (isHyperbolic ? 'acosh' : 'cos⁻¹') : undefined}
+            variant="function"
+            onClick={() =>
+              insertText(
+                isHyperbolic
+                  ? isSecond ? 'acosh(' : 'cosh('
+                  : isSecond ? 'acos(' : 'cos('
+              )
+            }
+          />
+          <KeypadButton
+            label={
+              isHyperbolic
+                ? isSecond ? 'atanh' : 'tanh'
+                : isSecond ? 'atan' : 'tan'
+            }
+            secondaryLabel={!isSecond ? (isHyperbolic ? 'atanh' : 'tan⁻¹') : undefined}
+            variant="function"
+            onClick={() =>
+              insertText(
+                isHyperbolic
+                  ? isSecond ? 'atanh(' : 'tanh('
+                  : isSecond ? 'atan(' : 'tan('
+              )
+            }
+          />
+          <KeypadButton
+            label={isSecond ? '10ˣ' : 'log₁₀'}
+            secondaryLabel={!isSecond ? '10ˣ' : undefined}
+            variant="function"
+            onClick={() => insertText(isSecond ? '10^(' : 'log10(')}
+          />
+          <KeypadButton
+            label={isSecond ? 'eˣ' : 'ln'}
+            secondaryLabel={!isSecond ? 'eˣ' : undefined}
+            variant="function"
+            onClick={() => insertText(isSecond ? 'e^(' : 'ln(')}
+          />
+          <KeypadButton
+            label="AC"
+            variant="danger"
+            hotkey="Esc"
+            onClick={handleClear}
+          />
+          <KeypadButton
+            label={<Delete className="w-4 h-4 md:w-5 md:h-5" />}
+            variant="function"
+            hotkey="⌫"
+            onClick={handleBackspace}
+          />
+
+          {/* Row 2: Powers, Roots, Factorial, Division */}
+          <KeypadButton
+            label={isSecond ? 'x³' : 'x²'}
+            secondaryLabel={!isSecond ? 'x³' : undefined}
+            variant="function"
+            onClick={() => insertText(isSecond ? '^3' : '^2')}
+          />
+          <KeypadButton
+            label={isSecond ? '³√x' : '√x'}
+            secondaryLabel={!isSecond ? '³√x' : undefined}
+            variant="function"
+            onClick={() => insertText(isSecond ? 'cbrt(' : 'sqrt(')}
+          />
+          <KeypadButton
+            label="xʸ"
+            secondaryLabel="y√x"
+            variant="function"
+            hotkey="^"
+            onClick={() => insertText('^(')}
+          />
+          <KeypadButton
+            label="n!"
+            variant="function"
+            onClick={() => insertText('!')}
+          />
+          <KeypadButton
+            label="("
+            variant="function"
+            hotkey="("
+            onClick={() => insertText('(')}
+          />
+          <KeypadButton
+            label=")"
+            variant="function"
+            hotkey=")"
+            onClick={() => insertText(')')}
+          />
+          <KeypadButton
+            label="÷"
+            variant="operator"
+            hotkey="/"
+            onClick={() => insertText('÷')}
+          />
+
+          {/* Row 3: Constants & 7-8-9 & Multiply */}
+          <KeypadButton
+            label="π"
+            variant="function"
+            subLabel="3.141"
+            onClick={() => insertText('pi')}
+          />
+          <KeypadButton
+            label="e"
+            variant="function"
+            subLabel="2.718"
+            onClick={() => insertText('e')}
+          />
+          <KeypadButton
+            label="ϕ"
+            variant="function"
+            subLabel="1.618"
+            onClick={() => insertText('phi')}
+          />
+          <KeypadButton
+            label="7"
+            variant="default"
+            hotkey="7"
+            onClick={() => insertText('7')}
+          />
+          <KeypadButton
+            label="8"
+            variant="default"
+            hotkey="8"
+            onClick={() => insertText('8')}
+          />
+          <KeypadButton
+            label="9"
+            variant="default"
+            hotkey="9"
+            onClick={() => insertText('9')}
+          />
+          <KeypadButton
+            label="×"
+            variant="operator"
+            hotkey="*"
+            onClick={() => insertText('×')}
+          />
+
+          {/* Row 4: Modulo, Inversion & 4-5-6 & Minus */}
+          <KeypadButton
+            label="|x|"
+            variant="function"
+            onClick={() => insertText('abs(')}
+          />
+          <KeypadButton
+            label="mod"
+            variant="function"
+            onClick={() => insertText(' mod ')}
+          />
+          <KeypadButton
+            label="1/x"
+            variant="function"
+            onClick={() => insertText('1/(')}
+          />
+          <KeypadButton
+            label="4"
+            variant="default"
+            hotkey="4"
+            onClick={() => insertText('4')}
+          />
+          <KeypadButton
+            label="5"
+            variant="default"
+            hotkey="5"
+            onClick={() => insertText('5')}
+          />
+          <KeypadButton
+            label="6"
+            variant="default"
+            hotkey="6"
+            onClick={() => insertText('6')}
+          />
+          <KeypadButton
+            label="−"
+            variant="operator"
+            hotkey="-"
+            onClick={() => insertText('−')}
+          />
+
+          {/* Row 5: Log2, Percent & 1-2-3 & Plus */}
+          <KeypadButton
+            label="log₂"
+            variant="function"
+            onClick={() => insertText('log2(')}
+          />
+          <KeypadButton
+            label="%"
+            variant="function"
+            hotkey="%"
+            onClick={() => insertText('%')}
+          />
+          <KeypadButton
+            label="EXP"
+            variant="function"
+            onClick={() => insertText('e+')}
+          />
+          <KeypadButton
+            label="1"
+            variant="default"
+            hotkey="1"
+            onClick={() => insertText('1')}
+          />
+          <KeypadButton
+            label="2"
+            variant="default"
+            hotkey="2"
+            onClick={() => insertText('2')}
+          />
+          <KeypadButton
+            label="3"
+            variant="default"
+            hotkey="3"
+            onClick={() => insertText('3')}
+          />
+          <KeypadButton
+            label="+"
+            variant="operator"
+            hotkey="+"
+            onClick={() => insertText('+')}
+          />
+
+          {/* Row 6: Sign, Random, ANS, 0, Decimal, Equals */}
+          <KeypadButton
+            label="±"
+            variant="function"
+            onClick={() => {
+              if (expression.startsWith('-(') && expression.endsWith(')')) {
+                setExpression(expression.slice(2, -1));
+              } else {
+                setExpression(`-(${expression})`);
+              }
+            }}
+          />
+          <KeypadButton
+            label="rnd"
+            variant="function"
+            onClick={() => insertText(Math.random().toFixed(4))}
+          />
+          <KeypadButton
+            label="ANS"
+            variant="function"
+            onClick={() => {
+              if (finalResult) insertText(finalResult);
+            }}
+          />
+          <KeypadButton
+            label="0"
+            variant="default"
+            hotkey="0"
+            onClick={() => insertText('0')}
+          />
+          <KeypadButton
+            label="."
+            variant="default"
+            hotkey="."
+            onClick={() => insertText('.')}
+          />
+          <KeypadButton
+            label="="
+            variant="action"
+            hotkey="Enter"
+            className="col-span-2 text-xl md:text-2xl font-bold"
+            onClick={handleCalculate}
+          />
+        </div>
       </div>
     </div>
   );
 };
-

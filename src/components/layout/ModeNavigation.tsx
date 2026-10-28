@@ -10,23 +10,24 @@ interface ModeNavigationProps {
 
 interface ModeItem {
   id: CalculatorMode;
+  code: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   hotkey: string;
 }
 
 const MODES: ModeItem[] = [
-  { id: 'scientific', label: 'Scientific', icon: Calculator, hotkey: 'Alt+1' },
-  { id: 'programmer', label: 'Programmer', icon: Cpu, hotkey: 'Alt+2' },
-  { id: 'converter', label: 'Unit & Currency', icon: ArrowLeftRight, hotkey: 'Alt+3' },
-  { id: 'financial', label: 'Financial & Loan', icon: Landmark, hotkey: 'Alt+4' },
-  { id: 'graphing', label: '2D Graphing', icon: LineChart, hotkey: 'Alt+5' },
+  { id: 'scientific', code: '01', label: 'Scientific', icon: Calculator, hotkey: 'Alt+1' },
+  { id: 'programmer', code: '02', label: 'Programmer', icon: Cpu, hotkey: 'Alt+2' },
+  { id: 'converter', code: '03', label: 'Metrology & FX', icon: ArrowLeftRight, hotkey: 'Alt+3' },
+  { id: 'financial', code: '04', label: 'Financial & Growth', icon: Landmark, hotkey: 'Alt+4' },
+  { id: 'graphing', code: '05', label: '2D Plotter', icon: LineChart, hotkey: 'Alt+5' },
 ];
 
 export const ModeNavigation: React.FC<ModeNavigationProps> = ({ currentMode, onModeChange }) => {
   return (
-    <nav className="w-full max-w-4xl mx-auto px-4 my-4">
-      <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg backdrop-blur-md overflow-x-auto scrollbar-none">
+    <nav className="w-full max-w-4xl mx-auto px-4 my-2">
+      <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1.5 rounded-2xl machined-dock overflow-x-auto scrollbar-none">
         {MODES.map((mode) => {
           const Icon = mode.icon;
           const isActive = currentMode === mode.id;
@@ -35,20 +36,34 @@ export const ModeNavigation: React.FC<ModeNavigationProps> = ({ currentMode, onM
             <button
               key={mode.id}
               onClick={() => onModeChange(mode.id)}
-              className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition-colors duration-200 whitespace-nowrap focus:outline-none ${
-                isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-150 whitespace-nowrap focus:outline-none ${
+                isActive
+                  ? 'text-[var(--text-primary)] shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-white/5'
               }`}
             >
               {isActive && (
                 <motion.div
-                  layoutId="activeModePill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-md shadow-indigo-500/20"
-                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                  layoutId="activeModeSelector"
+                  className="absolute inset-0 rounded-xl bg-[var(--key-default)] border border-[var(--border-highlight)] shadow-sm"
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1.5">
-                <Icon className="w-4 h-4" />
+                <span
+                  className={`text-[9px] px-1 py-0.2 rounded font-mono font-bold ${
+                    isActive
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]'
+                      : 'bg-black/30 text-[var(--text-muted)] border border-white/5'
+                  }`}
+                >
+                  {mode.code}
+                </span>
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[var(--accent-primary)]' : ''}`} />
                 <span>{mode.label}</span>
+                <span className="text-[9px] opacity-40 font-normal hidden lg:inline ml-0.5">
+                  ({mode.hotkey.replace('Alt+', '⌥')})
+                </span>
               </span>
             </button>
           );
@@ -57,4 +72,3 @@ export const ModeNavigation: React.FC<ModeNavigationProps> = ({ currentMode, onM
     </nav>
   );
 };
-

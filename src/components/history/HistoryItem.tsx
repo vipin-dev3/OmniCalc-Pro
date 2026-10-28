@@ -1,7 +1,7 @@
 import React from 'react';
 import { HistoryItem as HistoryItemType } from '../../types/calculator';
 import { formatTimestamp } from '../../utils/formatters';
-import { Copy, CornerDownLeft, Trash2 } from 'lucide-react';
+import { Copy, CornerDownLeft, Trash2, Check } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/exportHelper';
 import { useToast } from '../../context/ToastContext';
 
@@ -13,46 +13,32 @@ interface HistoryItemProps {
 
 export const HistoryItem: React.FC<HistoryItemProps> = ({ item, onRecall, onDelete }) => {
   const { showToast } = useToast();
+  const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async (text: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const success = await copyTextToClipboard(text);
     if (success) {
-      showToast('Copied to clipboard!', 'success');
-    }
-  };
-
-  const getModeColor = (mode: string) => {
-    switch (mode) {
-      case 'scientific':
-        return 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20';
-      case 'programmer':
-        return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-      case 'converter':
-        return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-      case 'financial':
-        return 'text-rose-400 bg-rose-500/10 border-rose-500/20';
-      case 'graphing':
-        return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
-      default:
-        return 'text-slate-400 bg-slate-500/10 border-slate-500/20';
+      setCopied(true);
+      showToast('Copied to clipboard', 'success');
+      setTimeout(() => setCopied(false), 1500);
     }
   };
 
   return (
-    <div className="group relative p-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/40 transition-all duration-150">
-      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1.5">
-        <span className={`px-1.5 py-0.5 rounded uppercase font-semibold text-[10px] border ${getModeColor(item.mode)}`}>
+    <div className="group relative p-3 rounded-xl bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] border border-[var(--border-color)] transition-all font-mono">
+      <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] mb-1.5">
+        <span className="px-1.5 py-0.2 rounded uppercase font-bold tracking-wider bg-[var(--key-function)] text-[var(--accent-primary)] border border-[var(--border-color)]">
           {item.mode}
         </span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <span>{formatTimestamp(item.timestamp)}</span>
           <button
             onClick={() => onDelete(item.id)}
-            title="Delete this item"
+            title="Delete from tape"
             className="opacity-0 group-hover:opacity-100 hover:text-rose-400 p-0.5 transition-opacity"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -60,32 +46,31 @@ export const HistoryItem: React.FC<HistoryItemProps> = ({ item, onRecall, onDele
       {/* Expression (Click to recall) */}
       <button
         onClick={() => onRecall(item.expression)}
-        title="Click to recall expression"
-        className="w-full text-left font-mono text-xs text-slate-400 hover:text-indigo-300 truncate transition-colors py-0.5"
+        title="Recall expression to input"
+        className="w-full text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] truncate transition-colors py-0.5"
       >
         {item.expression}
       </button>
 
       {/* Result (Click to recall result) */}
-      <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-700/20">
+      <div className="flex items-center justify-between mt-1 pt-1 border-t border-[var(--border-color)]">
         <button
           onClick={() => onRecall(item.result)}
-          title="Click to recall result into calculator"
-          className="font-mono text-sm md:text-base font-bold text-white hover:text-indigo-400 transition-colors text-left flex items-center gap-1.5"
+          title="Recall result into calculator"
+          className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors text-left flex items-center gap-1.5"
         >
           <span>= {item.result}</span>
-          <CornerDownLeft className="w-3 h-3 opacity-0 group-hover:opacity-60 text-indigo-400" />
+          <CornerDownLeft className="w-3 h-3 opacity-0 group-hover:opacity-75 text-[var(--accent-primary)]" />
         </button>
 
         <button
           onClick={(e) => handleCopy(item.result, e)}
           title="Copy result"
-          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+          className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
-          <Copy className="w-3.5 h-3.5" />
+          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
         </button>
       </div>
     </div>
   );
 };
-

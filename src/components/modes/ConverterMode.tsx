@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { UnitCategory, UnitDefinition, CurrencyRate } from '../../types/converter';
-import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check } from 'lucide-react';
+import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check, Sparkles, Sliders } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/exportHelper';
 import { useToast } from '../../context/ToastContext';
 import { useHistory } from '../../context/HistoryContext';
@@ -106,9 +106,10 @@ export const ConverterMode: React.FC = () => {
     return saved ? JSON.parse(saved) : DEFAULT_CURRENCY_RATES;
   });
   const [fromCurrency, setFromCurrency] = useState<string>('USD');
-  const [toCurrency, setToCurrency] = useState<string>('INR');
+  const [toCurrency, setToCurrency] = useState<string>('EUR');
   const [isEditRatesOpen, setIsEditRatesOpen] = useState(false);
   const [tempRates, setTempRates] = useState<CurrencyRate[]>(currencyRates);
+  const [copied, setCopied] = useState(false);
 
   // Update default units when category changes
   const handleCategoryChange = (cat: UnitCategory) => {
@@ -128,7 +129,6 @@ export const ConverterMode: React.FC = () => {
     if (category === 'currency') {
       const fromRate = currencyRates.find((c) => c.code === fromCurrency)?.ratePerUSD || 1;
       const toRate = currencyRates.find((c) => c.code === toCurrency)?.ratePerUSD || 1;
-      // Convert to USD base first, then to target
       const inUSD = val / fromRate;
       const result = inUSD * toRate;
       return result >= 1000 ? result.toFixed(2) : result.toFixed(4);
@@ -143,6 +143,24 @@ export const ConverterMode: React.FC = () => {
       return Number(res.toPrecision(8)).toString();
     }
   }, [category, inputValue, fromUnitId, toUnitId, fromCurrency, toCurrency, currencyRates]);
+
+  // Unit relation preview (1 From = ? To)
+  const unitRelationPreview = useMemo(() => {
+    if (category === 'currency') {
+      const fromRate = currencyRates.find((c) => c.code === fromCurrency)?.ratePerUSD || 1;
+      const toRate = currencyRates.find((c) => c.code === toCurrency)?.ratePerUSD || 1;
+      const oneUnitTo = (1 / fromRate) * toRate;
+      return `1 ${fromCurrency} = ${oneUnitTo.toFixed(4)} ${toCurrency}`;
+    } else {
+      const units = UNIT_DEFINITIONS[category];
+      const fromDef = units.find((u) => u.id === fromUnitId);
+      const toDef = units.find((u) => u.id === toUnitId);
+      if (!fromDef || !toDef) return '';
+      const baseVal = fromDef.toBase(1);
+      const res = toDef.fromBase(baseVal);
+      return `1 ${fromDef.symbol} = ${Number(res.toPrecision(6))} ${toDef.symbol}`;
+    }
+  }, [category, fromUnitId, toUnitId, fromCurrency, toCurrency, currencyRates]);
 
   // Swap units
   const handleSwap = () => {
@@ -160,12 +178,14 @@ export const ConverterMode: React.FC = () => {
   const handleCopy = async () => {
     const success = await copyTextToClipboard(convertedValue);
     if (success) {
-      showToast(`Copied ${convertedValue} to clipboard!`, 'success');
+      setCopied(true);
+      showToast(`Copied ${convertedValue}`, 'success');
       addHistory(
         `${inputValue} ${category === 'currency' ? fromCurrency : fromUnitId} to ${category === 'currency' ? toCurrency : toUnitId}`,
         convertedValue,
         'converter'
       );
+      setTimeout(() => setCopied(false), 1500);
     }
   };
 
@@ -174,14 +194,14 @@ export const ConverterMode: React.FC = () => {
     setCurrencyRates(tempRates);
     localStorage.setItem('omni_calc_currencies', JSON.stringify(tempRates));
     setIsEditRatesOpen(false);
-    showToast('Currency rates updated successfully', 'success');
+    showToast('Currency exchange rates updated', 'success');
   };
 
   const handleResetRates = () => {
     setTempRates(DEFAULT_CURRENCY_RATES);
     setCurrencyRates(DEFAULT_CURRENCY_RATES);
     localStorage.setItem('omni_calc_currencies', JSON.stringify(DEFAULT_CURRENCY_RATES));
-    showToast('Currency rates reset to defaults', 'info');
+    showToast('Currency rates reset to base defaults', 'info');
   };
 
   // All other units quick conversion list
@@ -217,182 +237,203 @@ export const ConverterMode: React.FC = () => {
     }
   }, [category, inputValue, fromUnitId, fromCurrency, currencyRates]);
 
-  const categories: { id: UnitCategory; label: string }[] = [
-    { id: 'length', label: 'Length' },
-    { id: 'mass', label: 'Weight & Mass' },
-    { id: 'temperature', label: 'Temperature' },
-    { id: 'speed', label: 'Speed' },
-    { id: 'data', label: 'Data Storage' },
-    { id: 'energy', label: 'Energy' },
-    { id: 'area', label: 'Area' },
-    { id: 'volume', label: 'Volume' },
-    { id: 'currency', label: 'Currency Rates' },
+  const categories: { id: UnitCategory; code: string; label: string }[] = [
+    { id: 'length', code: 'LEN', label: 'Length' },
+    { id: 'mass', code: 'MAS', label: 'Mass & Weight' },
+    { id: 'temperature', code: 'TMP', label: 'Temperature' },
+    { id: 'speed', code: 'SPD', label: 'Speed' },
+    { id: 'data', code: 'DAT', label: 'Data Storage' },
+    { id: 'energy', code: 'ENG', label: 'Energy' },
+    { id: 'area', code: 'ARE', label: 'Area' },
+    { id: 'volume', code: 'VOL', label: 'Volume' },
+    { id: 'currency', code: 'FX', label: 'Foreign FX' },
   ];
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 flex flex-col gap-4">
-      {/* Category Pills Navigation */}
-      <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 overflow-x-auto scrollbar-none">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => handleCategoryChange(cat.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold whitespace-nowrap transition-colors ${
-              category === cat.id
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'bg-slate-800/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Main Converter Card */}
-      <div className="p-6 rounded-2xl glass-panel shadow-2xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 className="text-base font-bold text-white uppercase tracking-wider">
-            {categories.find((c) => c.id === category)?.label} Converter
-          </h2>
-
-          {category === 'currency' && (
+    <div className="w-full max-w-4xl mx-auto px-4 flex flex-col gap-3 font-mono">
+      {/* Outer Hardware Chassis */}
+      <div className="hardware-chassis p-4 md:p-6 rounded-3xl space-y-4">
+        {/* Category Dock */}
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] overflow-x-auto scrollbar-none">
+          {categories.map((cat) => (
             <button
-              onClick={() => {
-                setTempRates(currencyRates);
-                setIsEditRatesOpen(true);
-              }}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-colors"
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+                category === cat.id
+                  ? 'bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-highlight)] shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
             >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit Exchange Rates</span>
+              <span className="text-[9px] px-1 rounded bg-black/30 opacity-70">
+                {cat.code}
+              </span>
+              <span>{cat.label}</span>
             </button>
-          )}
+          ))}
         </div>
 
-        {/* Inputs & Units Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4">
-          {/* FROM SECTION */}
-          <div className="space-y-2 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-            <span className="text-xs font-mono uppercase text-slate-400 font-semibold">
-              From
-            </span>
-            <input
-              type="number"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Enter value"
-              className="w-full text-2xl md:text-3xl font-mono font-bold bg-transparent text-white focus:outline-none border-b border-slate-700 pb-1"
-            />
-            {category === 'currency' ? (
-              <select
-                value={fromCurrency}
-                onChange={(e) => setFromCurrency(e.target.value)}
-                className="w-full mt-2 p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-medium text-white focus:ring-2 focus:ring-indigo-500"
+        {/* Metrology & Conversion Instrument */}
+        <div className="instrument-display p-5 md:p-6 rounded-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                {categories.find((c) => c.id === category)?.label} Engine
+              </span>
+              <span className="text-[10px] text-[var(--accent-primary)] bg-[var(--key-function)] px-2 py-0.5 rounded border border-[var(--border-color)]">
+                {unitRelationPreview}
+              </span>
+            </div>
+
+            {category === 'currency' && (
+              <button
+                onClick={() => {
+                  setTempRates(currencyRates);
+                  setIsEditRatesOpen(true);
+                }}
+                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors"
               >
-                {currencyRates.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} - {c.name} ({c.symbol})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <select
-                value={fromUnitId}
-                onChange={(e) => setFromUnitId(e.target.value)}
-                className="w-full mt-2 p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-medium text-white focus:ring-2 focus:ring-indigo-500"
-              >
-                {UNIT_DEFINITIONS[category].map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.symbol})
-                  </option>
-                ))}
-              </select>
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Adjust FX Rates</span>
+              </button>
             )}
           </div>
 
-          {/* SWAP BUTTON */}
-          <div className="flex justify-center my-2 md:my-0">
-            <button
-              onClick={handleSwap}
-              title="Swap Units"
-              className="p-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition-transform active:scale-95"
-            >
-              <ArrowLeftRight className="w-5 h-5" />
-            </button>
-          </div>
+          {/* Interactive Conversion Flow */}
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4">
+            {/* SOURCE INPUT */}
+            <div className="space-y-2 p-4 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]">
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
+                <span className="font-bold">INPUT VALUE</span>
+                <span className="text-[10px]">SOURCE UNIT</span>
+              </div>
+              <input
+                type="number"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Enter value"
+                className="w-full text-2xl md:text-3xl font-bold bg-transparent text-[var(--screen-text)] focus:outline-none border-b border-[var(--border-color)] pb-1"
+              />
+              {category === 'currency' ? (
+                <select
+                  value={fromCurrency}
+                  onChange={(e) => setFromCurrency(e.target.value)}
+                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                >
+                  {currencyRates.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} — {c.name} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  value={fromUnitId}
+                  onChange={(e) => setFromUnitId(e.target.value)}
+                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                >
+                  {UNIT_DEFINITIONS[category].map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.symbol})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
 
-          {/* TO SECTION */}
-          <div className="space-y-2 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono uppercase text-slate-400 font-semibold">
-                To (Result)
-              </span>
+            {/* SWAP BUTTON */}
+            <div className="flex justify-center">
               <button
-                onClick={handleCopy}
-                title="Copy Result"
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                onClick={handleSwap}
+                title="Swap Units"
+                className="p-3 rounded-full bg-[var(--key-action)] text-[var(--key-action-text)] shadow-md keycap-3d active:scale-95"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <ArrowLeftRight className="w-4 h-4" />
               </button>
             </div>
-            <div className="text-2xl md:text-3xl font-mono font-bold text-indigo-400 border-b border-slate-700 pb-1 break-all select-all">
-              {convertedValue}
+
+            {/* TARGET RESULT */}
+            <div className="space-y-2 p-4 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]">
+              <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
+                <span className="font-bold">CONVERTED RESULT</span>
+                <button
+                  onClick={handleCopy}
+                  title="Copy result"
+                  className="flex items-center gap-1 text-[11px] text-[var(--accent-primary)] hover:underline"
+                >
+                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+              <div
+                onClick={handleCopy}
+                title="Click to copy"
+                className="text-2xl md:text-3xl font-bold text-[var(--accent-primary)] border-b border-[var(--border-color)] pb-1 break-all cursor-pointer hover:opacity-90"
+              >
+                {convertedValue}
+              </div>
+              {category === 'currency' ? (
+                <select
+                  value={toCurrency}
+                  onChange={(e) => setToCurrency(e.target.value)}
+                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                >
+                  {currencyRates.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} — {c.name} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  value={toUnitId}
+                  onChange={(e) => setToUnitId(e.target.value)}
+                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                >
+                  {UNIT_DEFINITIONS[category].map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.symbol})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
-            {category === 'currency' ? (
-              <select
-                value={toCurrency}
-                onChange={(e) => setToCurrency(e.target.value)}
-                className="w-full mt-2 p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-medium text-white focus:ring-2 focus:ring-indigo-500"
-              >
-                {currencyRates.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} - {c.name} ({c.symbol})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <select
-                value={toUnitId}
-                onChange={(e) => setToUnitId(e.target.value)}
-                className="w-full mt-2 p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-medium text-white focus:ring-2 focus:ring-indigo-500"
-              >
-                {UNIT_DEFINITIONS[category].map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.symbol})
-                  </option>
-                ))}
-              </select>
-            )}
           </div>
         </div>
-      </div>
 
-      {/* Quick Reference Conversion Table */}
-      <div className="p-5 rounded-2xl glass-panel space-y-3">
-        <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-          Equivalent Values Across All Units
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-          {allConversions.map((conv) => (
-            <div
-              key={conv.id}
-              onClick={() => {
-                if (category === 'currency') setToCurrency(conv.id);
-                else setToUnitId(conv.id);
-              }}
-              className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 cursor-pointer transition-colors"
-            >
-              <div>
-                <div className="text-xs text-slate-400">{conv.name}</div>
-                <div className="font-mono text-sm md:text-base font-bold text-white truncate max-w-[180px]">
-                  {conv.value}
+        {/* Quick Reference Metrology Matrix */}
+        <div className="p-4 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] space-y-2.5">
+          <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
+            <span className="font-bold uppercase tracking-wider text-[var(--text-secondary)] text-[10px]">
+              Instant Relative Table ({category.toUpperCase()})
+            </span>
+            <span className="text-[10px] opacity-75">Click any card to select target</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            {allConversions.map((conv) => (
+              <div
+                key={conv.id}
+                onClick={() => {
+                  if (category === 'currency') setToCurrency(conv.id);
+                  else setToUnitId(conv.id);
+                }}
+                className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] border border-[var(--border-color)] cursor-pointer transition-colors group"
+              >
+                <div className="min-w-0 pr-2">
+                  <div className="text-[10px] text-[var(--text-muted)] truncate group-hover:text-[var(--text-secondary)]">
+                    {conv.name}
+                  </div>
+                  <div className="text-sm font-bold text-[var(--screen-text)] truncate">
+                    {conv.value}
+                  </div>
                 </div>
+                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[var(--key-function)] text-[var(--accent-primary)] border border-[var(--border-color)] shrink-0">
+                  {conv.symbol}
+                </span>
               </div>
-              <span className="font-mono text-xs font-semibold px-2 py-1 rounded bg-slate-800 text-indigo-300">
-                {conv.symbol}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
@@ -400,29 +441,31 @@ export const ConverterMode: React.FC = () => {
       {isEditRatesOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm"
             onClick={() => setIsEditRatesOpen(false)}
           />
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl z-10 text-white max-h-[85vh] flex flex-col">
-            <h3 className="text-lg font-bold mb-2">Edit Currency Exchange Rates</h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Rates are relative to 1 USD base. Tweak values to test custom exchange scenarios.
+          <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-highlight)] rounded-3xl p-6 shadow-2xl z-10 text-[var(--text-primary)] max-h-[85vh] flex flex-col hardware-chassis">
+            <h3 className="text-base font-bold mb-1">Currency Exchange Matrix</h3>
+            <p className="text-xs text-[var(--text-muted)] mb-4">
+              Configured against 1.00 USD base currency.
             </p>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {tempRates.map((rate, idx) => (
                 <div
                   key={rate.code}
-                  className="flex items-center justify-between p-2 rounded-xl bg-slate-800/60 border border-slate-700/50"
+                  className="flex items-center justify-between p-2 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-bold text-indigo-400 w-12">
+                    <span className="text-xs font-bold text-[var(--accent-primary)] w-10">
                       {rate.code}
                     </span>
-                    <span className="text-xs text-slate-400">{rate.name}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)] truncate max-w-[120px]">
+                      {rate.name}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono text-slate-500">1 USD =</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">1 USD =</span>
                     <input
                       type="number"
                       step="0.01"
@@ -433,34 +476,34 @@ export const ConverterMode: React.FC = () => {
                         copy[idx].ratePerUSD = val;
                         setTempRates(copy);
                       }}
-                      className="w-24 px-2 py-1 rounded bg-slate-900 border border-slate-700 font-mono text-sm text-right text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-24 px-2 py-1 rounded bg-[var(--key-default)] border border-[var(--border-color)] font-mono text-xs text-right text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
                     />
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-4 mt-4 border-t border-[var(--border-color)]">
               <button
                 onClick={handleResetRates}
-                className="flex items-center gap-1 text-xs text-slate-400 hover:text-white"
+                className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Defaults</span>
+                <span>Reset</span>
               </button>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsEditRatesOpen(false)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-700"
+                  className="px-3 py-1.5 rounded-xl bg-[var(--key-function)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveRates}
-                  className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-md shadow-indigo-500/20"
+                  className="px-4 py-1.5 rounded-xl bg-[var(--key-action)] text-[var(--key-action-text)] text-xs font-bold shadow-md"
                 >
-                  Save Changes
+                  Save Rates
                 </button>
               </div>
             </div>
@@ -470,4 +513,3 @@ export const ConverterMode: React.FC = () => {
     </div>
   );
 };
-

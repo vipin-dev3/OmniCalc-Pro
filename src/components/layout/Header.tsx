@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Volume2, VolumeX, History, Keyboard, Sparkles, Check } from 'lucide-react';
+import { Palette, Volume2, VolumeX, History, Keyboard, Check, SlidersHorizontal, Terminal } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useSound } from '../../context/SoundContext';
 import { useHistory } from '../../context/HistoryContext';
@@ -16,59 +16,80 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
 
   return (
-    <header className="w-full flex items-center justify-between py-3 px-4 md:px-8 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
-      {/* Brand & Logo */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/25 border border-indigo-400/30">
-          <Sparkles className="w-5 h-5 text-white" />
+    <header className="w-full flex items-center justify-between py-2.5 px-4 md:px-8 border-b border-[var(--border-color)] bg-[var(--bg-header)] backdrop-blur-xl sticky top-0 z-30 transition-colors duration-200">
+      {/* Brand & Precision Logo */}
+      <div className="flex items-center gap-3">
+        {/* Precision Geometric Monogram */}
+        <div className="relative w-9 h-9 rounded-xl bg-[var(--key-default)] border border-[var(--border-highlight)] flex items-center justify-center shadow-md overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
+          <span className="font-mono font-black text-base tracking-tighter text-[var(--accent-primary)] z-10">
+            Ω
+          </span>
+          <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-ping opacity-75" />
         </div>
+
         <div>
-          <div className="flex items-center gap-1.5">
-            <h1 className="font-extrabold text-base md:text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              OmniCalc <span className="text-indigo-400 font-black">Pro</span>
+          <div className="flex items-center gap-2">
+            <h1 className="font-mono font-black text-base md:text-lg tracking-tight text-[var(--text-primary)]">
+              CALC<span className="text-[var(--accent-primary)]">//</span>LAB
             </h1>
-            <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">
-              v2.0
+            <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[var(--key-function)] text-[var(--accent-primary)] border border-[var(--border-color)] font-semibold tracking-wider">
+              PRECISION
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 hidden sm:block">
-            Scientific • Programmer • Converter • Financial • 2D Graphing
+          <p className="text-[11px] font-mono text-[var(--text-muted)] hidden sm:block">
+            Scientific • Programmer • Metrology • Financial • 2D Plotter
           </p>
         </div>
       </div>
 
-      {/* Control Actions */}
+      {/* Control Actions & Workstation Controls */}
       <div className="flex items-center gap-1.5 md:gap-2">
         {/* Keyboard Shortcuts Trigger */}
         <button
           onClick={onOpenShortcuts}
-          title="Keyboard Shortcuts (Press ? or Shift+/)"
-          className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/50 transition-colors"
+          title="Keyboard Hotkeys (Press ? or Shift+/)"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[var(--key-function)] hover:bg-[var(--key-function-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors text-xs font-mono"
         >
-          <Keyboard className="w-4 h-4" />
+          <Keyboard className="w-3.5 h-3.5" />
+          <span className="hidden md:inline text-[10px] opacity-75">Hotkeys</span>
+          <kbd className="hidden lg:inline-block text-[9px] px-1 py-0.2 rounded bg-black/30 border border-white/10 text-[var(--text-muted)]">
+            ?
+          </kbd>
         </button>
 
-        {/* Sound Toggle */}
+        {/* Audio Click Feedback Toggle */}
         <button
           onClick={toggleSound}
-          title={soundEnabled ? 'Mute Keypad Audio' : 'Enable Keypad Audio'}
-          className={`p-2 rounded-xl border transition-colors ${
+          title={soundEnabled ? 'Mute Keypad Mechanical Audio' : 'Enable Keypad Mechanical Audio'}
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-mono transition-colors ${
             soundEnabled
-              ? 'bg-slate-800/60 text-indigo-400 border-indigo-500/30 hover:bg-slate-700/80'
-              : 'bg-slate-800/30 text-slate-500 border-slate-700/30 hover:bg-slate-800/60 hover:text-slate-400'
+              ? 'bg-[var(--key-function)] text-[var(--accent-primary)] border-[var(--border-highlight)] shadow-sm'
+              : 'bg-[var(--key-function)] text-[var(--text-muted)] border-[var(--border-color)] opacity-60 hover:opacity-100'
           }`}
         >
-          {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          {soundEnabled ? (
+            <>
+              <Volume2 className="w-3.5 h-3.5" />
+              <span className="hidden md:inline text-[10px]">Click ON</span>
+            </>
+          ) : (
+            <>
+              <VolumeX className="w-3.5 h-3.5" />
+              <span className="hidden md:inline text-[10px]">Click OFF</span>
+            </>
+          )}
         </button>
 
-        {/* Theme Picker Dropdown */}
+        {/* Theme Persona Selector */}
         <div className="relative">
           <button
             onClick={() => setThemeDropdownOpen(!themeDropdownOpen)}
-            title="Customize Theme"
-            className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/50 transition-colors flex items-center gap-1.5"
+            title="Switch Aesthetic Theme Persona"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--key-function)] hover:bg-[var(--key-function-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors text-xs font-mono"
           >
-            <Palette className="w-4 h-4 text-indigo-400" />
+            <Palette className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+            <span className="hidden md:inline text-[11px] font-medium">Theme</span>
           </button>
 
           {themeDropdownOpen && (
@@ -77,9 +98,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
                 className="fixed inset-0 z-30"
                 onClick={() => setThemeDropdownOpen(false)}
               />
-              <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-slate-900 border border-slate-700/80 shadow-2xl p-1.5 z-40 space-y-1">
-                <div className="px-2.5 py-1.5 text-[11px] font-semibold tracking-wider uppercase text-slate-400">
-                  Select Theme
+              <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-highlight)] shadow-2xl p-2 z-40 space-y-1.5 hardware-chassis">
+                <div className="px-3 py-1.5 text-[10px] font-mono font-bold tracking-widest uppercase text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                  Instrument Aesthetic Design
                 </div>
                 {availableThemes.map((t) => (
                   <button
@@ -88,20 +109,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
                       setTheme(t.id);
                       setThemeDropdownOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                    className={`w-full flex items-start gap-2.5 p-2 rounded-xl text-left transition-colors ${
                       theme === t.id
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-slate-300 hover:bg-slate-800'
+                        ? 'bg-[var(--key-operator)] border border-[var(--accent-primary)]/40'
+                        : 'hover:bg-[var(--key-function-hover)]'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-3.5 h-3.5 rounded-full border border-white/20"
-                        style={{ backgroundColor: t.previewColor }}
-                      />
-                      <span>{t.label}</span>
+                    <span
+                      className="w-4 h-4 rounded-full mt-0.5 shrink-0 border border-white/20 shadow-sm"
+                      style={{ backgroundColor: t.previewColor }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-xs text-[var(--text-primary)]">
+                          {t.label}
+                        </span>
+                        {theme === t.id && (
+                          <Check className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">
+                        {t.tagline}
+                      </p>
                     </div>
-                    {theme === t.id && <Check className="w-3.5 h-3.5 text-white" />}
                   </button>
                 ))}
               </div>
@@ -109,16 +139,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
           )}
         </div>
 
-        {/* History Drawer Toggle Button */}
+        {/* History Tape Drawer Button */}
         <button
           onClick={toggleDrawer}
-          title="Toggle Calculation History"
-          className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 transition-colors font-medium text-xs"
+          title="Open Paper Tape / History (Alt+H)"
+          className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-primary)] border border-[var(--border-highlight)] transition-colors font-mono text-xs shadow-sm keycap-3d"
         >
-          <History className="w-4 h-4" />
-          <span className="hidden sm:inline">History</span>
+          <History className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+          <span className="hidden sm:inline font-semibold">Tape</span>
           {history.length > 0 && (
-            <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">
+            <span className="px-1.5 py-0.2 rounded-full bg-[var(--accent-primary)] text-[var(--accent-text)] text-[9px] font-bold">
               {history.length > 99 ? '99+' : history.length}
             </span>
           )}
@@ -127,4 +157,3 @@ export const Header: React.FC<HeaderProps> = ({ onOpenShortcuts }) => {
     </header>
   );
 };
-

@@ -100,10 +100,10 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 
 ```bash
 # Clone the repository
-git clone https://github.com/vipin-dev3/Advanced-Calculator.git
+git clone https://github.com/vipin-dev3/OmniCalc-Pro.git
 
 # Navigate into the project directory
-cd Advanced-Calculator
+cd OmniCalc-Pro
 
 # Install dependencies
 npm install

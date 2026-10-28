@@ -1,36 +1,36 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlottedFunction, Point2D } from '../../types/graphing';
 import { compileGraphFunction } from '../../utils/mathParser';
-import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Activity } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
 const PRESETS = [
   { label: 'sin(x)', expr: 'sin(x)' },
   { label: 'cos(x)', expr: 'cos(x)' },
-  { label: 'x² - 4', expr: 'x^2 - 4' },
-  { label: 'x³ - 3x', expr: 'x^3 - 3*x' },
+  { label: 'x² − 4', expr: 'x^2 - 4' },
+  { label: 'x³ − 3x', expr: 'x^3 - 3*x' },
   { label: '1 / x', expr: '1/x' },
-  { label: 'e^x', expr: 'e^x' },
+  { label: 'eˣ (exp)', expr: 'e^x' },
   { label: 'ln(x)', expr: 'ln(x)' },
-  { label: 'Damped Wave', expr: 'e^(-0.2*x) * sin(2*x)' },
-  { label: 'Gaussian', expr: 'e^(-(x^2))' },
+  { label: 'Damped Oscillation', expr: 'e^(-0.2*x) * sin(2*x)' },
+  { label: 'Gaussian Bell', expr: 'e^(-(x^2))' },
 ];
 
-const COLORS = ['#00f3ff', '#ff007f', '#ffe600', '#10b981', '#a855f7'];
+const CURVE_PALETTE = ['#f59e0b', '#38bdf8', '#10b981', '#f43f5e', '#a855f7'];
 
 export const GraphingMode: React.FC = () => {
   const { showToast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [functions, setFunctions] = useState<PlottedFunction[]>([
-    { id: '1', expression: 'sin(x)', color: '#00f3ff', visible: true, isValid: true },
-    { id: '2', expression: '0.2*x^2 - 2', color: '#ff007f', visible: true, isValid: true },
+    { id: '1', expression: 'sin(x)', color: '#f59e0b', visible: true, isValid: true },
+    { id: '2', expression: '0.2*x^2 - 2', color: '#38bdf8', visible: true, isValid: true },
   ]);
 
   // Viewport camera parameters
   const [centerX, setCenterX] = useState<number>(0);
   const [centerY, setCenterY] = useState<number>(0);
-  const [scale, setScale] = useState<number>(40); // Pixels per unit
+  const [scale, setScale] = useState<number>(45); // Pixels per unit
 
   // Cursor Inspection state
   const [hoverPoint, setHoverPoint] = useState<Point2D | null>(null);
@@ -40,10 +40,10 @@ export const GraphingMode: React.FC = () => {
   // Add function
   const addFunction = () => {
     if (functions.length >= 5) {
-      showToast('Maximum 5 functions supported simultaneously', 'info');
+      showToast('Maximum 5 concurrent functions supported', 'info');
       return;
     }
-    const color = COLORS[functions.length % COLORS.length];
+    const color = CURVE_PALETTE[functions.length % CURVE_PALETTE.length];
     setFunctions((prev) => [
       ...prev,
       {
@@ -74,13 +74,13 @@ export const GraphingMode: React.FC = () => {
 
   // Zoom controls
   const handleZoom = (factor: number) => {
-    setScale((prev) => Math.max(5, Math.min(500, prev * factor)));
+    setScale((prev) => Math.max(8, Math.min(500, prev * factor)));
   };
 
   const handleReset = () => {
     setCenterX(0);
     setCenterY(0);
-    setScale(40);
+    setScale(45);
   };
 
   // Render Canvas
@@ -94,8 +94,8 @@ export const GraphingMode: React.FC = () => {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Clear background
-    ctx.fillStyle = '#090d16';
+    // Background color matching recessed instrument screen
+    ctx.fillStyle = '#06080d';
     ctx.fillRect(0, 0, width, height);
 
     // Canvas origin (0,0 in math coordinates)
@@ -104,16 +104,16 @@ export const GraphingMode: React.FC = () => {
 
     // Grid spacing calculation
     let step = 1;
-    if (scale < 15) step = 5;
-    else if (scale < 30) step = 2;
-    else if (scale > 100) step = 0.5;
-    else if (scale > 200) step = 0.2;
+    if (scale < 18) step = 5;
+    else if (scale < 32) step = 2;
+    else if (scale > 110) step = 0.5;
+    else if (scale > 220) step = 0.2;
 
     // Draw Grid Lines
     ctx.lineWidth = 1;
-    ctx.strokeStyle = '#1e293b';
-    ctx.font = '10px monospace';
-    ctx.fillStyle = '#64748b';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
 
     // Vertical grid lines
     const startX = Math.floor((-originCanvasX / scale) / step) * step;
@@ -127,7 +127,7 @@ export const GraphingMode: React.FC = () => {
       ctx.stroke();
 
       if (Math.abs(x) > 1e-6) {
-        ctx.fillText(Number(x.toFixed(2)).toString(), canvasX + 3, originCanvasY - 5);
+        ctx.fillText(Number(x.toFixed(2)).toString(), canvasX + 4, originCanvasY - 6);
       }
     }
 
@@ -143,13 +143,13 @@ export const GraphingMode: React.FC = () => {
       ctx.stroke();
 
       if (Math.abs(y) > 1e-6) {
-        ctx.fillText(Number(y.toFixed(2)).toString(), originCanvasX + 5, canvasY - 3);
+        ctx.fillText(Number(y.toFixed(2)).toString(), originCanvasX + 6, canvasY - 4);
       }
     }
 
     // Draw Main Axes (X & Y)
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
 
     // X Axis
     ctx.beginPath();
@@ -163,7 +163,8 @@ export const GraphingMode: React.FC = () => {
     ctx.lineTo(originCanvasX, height);
     ctx.stroke();
 
-    // Origin (0,0) label
+    // Origin label
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.fillText('0', originCanvasX + 4, originCanvasY - 4);
 
     // Plot Functions
@@ -173,12 +174,12 @@ export const GraphingMode: React.FC = () => {
       const compiled = compileGraphFunction(fn.expression);
       if (!compiled) return;
 
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.2;
       ctx.strokeStyle = fn.color;
       ctx.beginPath();
 
       let isDrawing = false;
-      const stepPixel = 1.5; // Smooth step size
+      const stepPixel = 1.5; // Smooth subpixel step
 
       for (let px = 0; px <= width; px += stepPixel) {
         const mathX = (px - originCanvasX) / scale;
@@ -187,7 +188,6 @@ export const GraphingMode: React.FC = () => {
         if (mathY !== null && isFinite(mathY)) {
           const py = originCanvasY - mathY * scale;
 
-          // Discontinuity filter (e.g. 1/x or tan(x))
           if (py >= -height && py <= height * 2) {
             if (!isDrawing) {
               ctx.moveTo(px, py);
@@ -212,8 +212,8 @@ export const GraphingMode: React.FC = () => {
 
       // Crosshairs
       ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = '#94a3b8';
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
 
       ctx.beginPath();
       ctx.moveTo(hoverCanvasX, 0);
@@ -227,32 +227,33 @@ export const GraphingMode: React.FC = () => {
 
       ctx.setLineDash([]); // Reset line dash
 
-      // Inspection Point marker
+      // Inspection Marker
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(hoverCanvasX, hoverCanvasY, 4, 0, Math.PI * 2);
+      ctx.arc(hoverCanvasX, hoverCanvasY, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Tooltip Card
       const tooltipX = Math.min(width - 150, Math.max(10, hoverCanvasX + 15));
-      const tooltipY = Math.min(height - 70, Math.max(20, hoverCanvasY - 20));
+      const tooltipY = Math.min(height - 65, Math.max(20, hoverCanvasY - 20));
 
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-      ctx.strokeStyle = '#334155';
+      ctx.fillStyle = 'rgba(10, 14, 22, 0.92)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
       ctx.lineWidth = 1;
-      ctx.roundRect(tooltipX, tooltipY, 130, 48, 8);
+      ctx.beginPath();
+      ctx.roundRect(tooltipX, tooltipY, 130, 46, 8);
       ctx.fill();
       ctx.stroke();
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '10px monospace';
-      ctx.fillText(`x: ${hoverPoint.x.toFixed(3)}`, tooltipX + 8, tooltipY + 18);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText(`y: ${hoverPoint.y.toFixed(3)}`, tooltipX + 8, tooltipY + 36);
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.fillText(`x: ${hoverPoint.x.toFixed(3)}`, tooltipX + 8, tooltipY + 17);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText(`y: ${hoverPoint.y.toFixed(3)}`, tooltipX + 8, tooltipY + 34);
     }
   }, [centerX, centerY, scale, functions, hoverPoint]);
 
-  // Keep canvas size responsive with DPI support
+  // Handle responsive canvas resizing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -318,133 +319,144 @@ export const GraphingMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 flex flex-col gap-4">
-      {/* Function Inputs & Presets Panel */}
-      <div className="p-4 rounded-2xl glass-panel space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-sm text-white uppercase tracking-wider">
-            Functions f(x)
-          </h3>
-          <div className="flex items-center gap-2">
-            {/* Presets Dropdown */}
-            <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  updateFunction(functions[0].id, { expression: e.target.value });
-                  e.target.value = '';
-                }
-              }}
-              defaultValue=""
-              className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs text-white"
-            >
-              <option value="" disabled>
-                Load Preset Function...
-              </option>
-              {PRESETS.map((p) => (
-                <option key={p.label} value={p.expr}>
-                  {p.label}
+    <div className="w-full max-w-5xl mx-auto px-4 flex flex-col gap-3 font-mono">
+      {/* Outer Hardware Chassis */}
+      <div className="hardware-chassis p-4 md:p-6 rounded-3xl space-y-4">
+        {/* Function Inputs & Presets Ribbon */}
+        <div className="p-4 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-color)] pb-2.5">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[var(--accent-primary)]" />
+              <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--text-primary)]">
+                Plotted Mathematical Functions
+              </h3>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Presets Dropdown */}
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    updateFunction(functions[0].id, { expression: e.target.value });
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+                className="p-1.5 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+              >
+                <option value="" disabled>
+                  Load Formula Preset...
                 </option>
-              ))}
-            </select>
+                {PRESETS.map((p) => (
+                  <option key={p.label} value={p.expr}>
+                    {p.label} ({p.expr})
+                  </option>
+                ))}
+              </select>
 
-            <button
-              onClick={addFunction}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Function</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Function Row List */}
-        <div className="space-y-2">
-          {functions.map((fn, idx) => (
-            <div
-              key={fn.id}
-              className="flex items-center gap-2 p-2 rounded-xl bg-slate-900/60 border border-slate-800"
-            >
-              <span
-                className="w-3 h-3 rounded-full shrink-0 shadow-sm"
-                style={{ backgroundColor: fn.color }}
-              />
-              <span className="font-mono text-xs text-slate-400">f{idx + 1}(x) =</span>
-              <input
-                type="text"
-                value={fn.expression}
-                onChange={(e) => updateFunction(fn.id, { expression: e.target.value })}
-                placeholder="e.g. sin(x) or x^2 - 4"
-                className="flex-1 bg-transparent text-white font-mono text-sm focus:outline-none"
-              />
               <button
-                onClick={() => updateFunction(fn.id, { visible: !fn.visible })}
-                title={fn.visible ? 'Hide Function' : 'Show Function'}
-                className="p-1 rounded text-slate-400 hover:text-white"
+                onClick={addFunction}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--key-action)] text-[var(--key-action-text)] text-xs font-bold shadow-sm"
               >
-                {fn.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-40" />}
-              </button>
-              <button
-                onClick={() => removeFunction(fn.id)}
-                title="Remove Function"
-                className="p-1 rounded text-slate-400 hover:text-rose-400"
-              >
-                <Trash2 className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Curve</span>
               </button>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Interactive 2D Graph Canvas */}
-      <div className="relative w-full h-[450px] md:h-[500px] rounded-2xl overflow-hidden glass-panel border border-slate-700/60 shadow-2xl">
-        <canvas
-          ref={canvasRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={() => {
-            setIsDragging(false);
-            setHoverPoint(null);
-          }}
-          onWheel={handleWheel}
-          className="w-full h-full cursor-crosshair touch-none"
-        />
-
-        {/* Floating Zoom & Reset Toolbar */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-1.5 p-1.5 rounded-xl bg-slate-900/90 border border-slate-700 backdrop-blur-md shadow-lg">
-          <button
-            onClick={() => handleZoom(1.25)}
-            title="Zoom In"
-            className="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleZoom(0.8)}
-            title="Zoom Out"
-            className="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-          >
-            <ZoomOut className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleReset}
-            title="Reset Origin (0,0)"
-            className="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Floating Inspection Legend */}
-        <div className="absolute top-4 left-4 p-2 rounded-xl bg-slate-900/80 border border-slate-700 backdrop-blur-md text-[11px] font-mono text-slate-400 space-y-1 pointer-events-none">
-          <div>
-            Center: ({centerX.toFixed(2)}, {centerY.toFixed(2)})
           </div>
-          <div>Zoom Scale: {scale.toFixed(1)} px/unit</div>
-          <div className="text-[10px] text-slate-500">Drag to Pan • Wheel to Zoom</div>
+
+          {/* Dynamic Function Input Rows */}
+          <div className="space-y-2">
+            {functions.map((fn, index) => (
+              <div
+                key={fn.id}
+                className="flex items-center gap-2 p-2 rounded-xl bg-[var(--key-default)] border border-[var(--border-color)]"
+              >
+                <div
+                  className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                  style={{ backgroundColor: fn.color }}
+                />
+                <span className="text-xs font-bold text-[var(--text-muted)] w-14">
+                  f{index + 1}(x) =
+                </span>
+                <input
+                  type="text"
+                  value={fn.expression}
+                  onChange={(e) => updateFunction(fn.id, { expression: e.target.value })}
+                  placeholder="e.g. sin(x), x^2, e^x"
+                  className="flex-1 bg-transparent text-sm text-[var(--text-primary)] font-bold focus:outline-none"
+                />
+
+                {/* Visible Toggle */}
+                <button
+                  onClick={() => updateFunction(fn.id, { visible: !fn.visible })}
+                  className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  title={fn.visible ? 'Hide Curve' : 'Show Curve'}
+                >
+                  {fn.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-40" />}
+                </button>
+
+                {/* Remove */}
+                {functions.length > 1 && (
+                  <button
+                    onClick={() => removeFunction(fn.id)}
+                    className="p-1 rounded text-[var(--text-muted)] hover:text-rose-400"
+                    title="Remove function"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Oscilloscope Plotter Canvas Viewport */}
+        <div className="relative rounded-2xl overflow-hidden border border-[var(--border-color)] shadow-2xl bg-[#06080d]">
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onWheel={handleWheel}
+            className="w-full h-[400px] md:h-[460px] cursor-crosshair block"
+          />
+
+          {/* Floating On-Canvas Workstation HUD */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 p-1 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
+            <button
+              onClick={() => handleZoom(1.2)}
+              title="Zoom In (+)"
+              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => handleZoom(0.8)}
+              title="Zoom Out (−)"
+              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleReset}
+              title="Reset View to Origin (0,0)"
+              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Bottom Telemetry HUD */}
+          <div className="absolute bottom-3 left-3 flex items-center gap-3 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-slate-400">
+            <span>SCALE: {scale.toFixed(1)} px/unit</span>
+            <span>•</span>
+            <span>CENTER: ({centerX.toFixed(2)}, {centerY.toFixed(2)})</span>
+            <span>•</span>
+            <span className="hidden sm:inline">Drag to pan • Scroll to zoom</span>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-

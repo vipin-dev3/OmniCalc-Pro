@@ -3,7 +3,7 @@ class SoundSynthesizer {
   private isEnabled: boolean = true;
 
   constructor() {
-    // Lazy initialize AudioContext on user interaction
+    // Lazy initialized on first user gesture
   }
 
   private initContext() {
@@ -27,7 +27,7 @@ class SoundSynthesizer {
   }
 
   /**
-   * Short, subtle mechanical click
+   * Authentic tactile mechanical micro-switch click
    */
   public playClick() {
     if (!this.isEnabled) return;
@@ -35,28 +35,46 @@ class SoundSynthesizer {
       this.initContext();
       if (!this.ctx) return;
 
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+      const t = this.ctx.currentTime;
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.04);
+      // 1. Sharp high-frequency actuation transient (simulates switch snap)
+      const oscHigh = this.ctx.createOscillator();
+      const gainHigh = this.ctx.createGain();
+      oscHigh.type = 'triangle';
+      oscHigh.frequency.setValueAtTime(1200, t);
+      oscHigh.frequency.exponentialRampToValueAtTime(180, t + 0.025);
 
-      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      gainHigh.gain.setValueAtTime(0.045, t);
+      gainHigh.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
 
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      oscHigh.connect(gainHigh);
+      gainHigh.connect(this.ctx.destination);
 
-      osc.start(this.ctx.currentTime);
-      osc.stop(this.ctx.currentTime + 0.04);
+      oscHigh.start(t);
+      oscHigh.stop(t + 0.025);
+
+      // 2. Subtle low-end mechanical body thump (simulates keycap bottoming out)
+      const oscLow = this.ctx.createOscillator();
+      const gainLow = this.ctx.createGain();
+      oscLow.type = 'sine';
+      oscLow.frequency.setValueAtTime(140, t);
+      oscLow.frequency.exponentialRampToValueAtTime(45, t + 0.035);
+
+      gainLow.gain.setValueAtTime(0.035, t);
+      gainLow.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+
+      oscLow.connect(gainLow);
+      gainLow.connect(this.ctx.destination);
+
+      oscLow.start(t);
+      oscLow.stop(t + 0.035);
     } catch {
-      // Audio autoplay policy or device without audio
+      // Audio policy safe
     }
   }
 
   /**
-   * Distinct tone for calculation evaluation
+   * Refined harmonic confirmation chime
    */
   public playSuccess() {
     if (!this.isEnabled) return;
@@ -64,24 +82,24 @@ class SoundSynthesizer {
       this.initContext();
       if (!this.ctx) return;
 
+      const t = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(523.25, t); // C5
+      osc.frequency.exponentialRampToValueAtTime(659.25, t + 0.08); // E5
 
-      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.05, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
-      osc.start(this.ctx.currentTime);
-      osc.stop(this.ctx.currentTime + 0.08);
+      osc.start(t);
+      osc.stop(t + 0.12);
     } catch {}
   }
 }
 
 export const soundManager = new SoundSynthesizer();
-
