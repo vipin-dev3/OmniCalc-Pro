@@ -134,8 +134,4 @@ npm run preview
 - **Netlify**: Set build command to `npm run build` and publish directory to `dist`.
 - **GitHub Pages**: Deploy the `dist` directory using GitHub Actions.
 
----
-
-## 📄 License
-This project is open-source under the MIT License.
 
