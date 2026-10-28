@@ -204,10 +204,10 @@ export const ProgrammerMode: React.FC = () => {
                 <button
                   key={size}
                   onClick={() => handleWordSizeChange(size)}
-                  className={`px-2.5 py-1 rounded-md uppercase font-bold text-[10px] tracking-wider transition-colors border ${
+                  className={`px-2.5 py-1 rounded-md uppercase font-bold text-[10px] tracking-wider transition-colors border shadow-sm ${
                     wordSize === size
-                      ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
-                      : 'bg-[var(--key-function)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
+                      : 'bg-[var(--chip-bg)] text-[var(--chip-text)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
                   }`}
                 >
                   {size} ({WORD_SIZE_BITS[size]})
@@ -217,16 +217,16 @@ export const ProgrammerMode: React.FC = () => {
 
             {/* Signed / Unsigned Toggle & ASCII Preview */}
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-[var(--accent-primary)] font-bold px-2 py-0.5 rounded bg-black/40 border border-white/5">
+              <span className="text-[10px] text-[var(--accent-primary)] font-bold px-2 py-0.5 rounded bg-black/15 dark:bg-black/40 border border-black/10 dark:border-white/5">
                 {getAsciiPreview()}
               </span>
 
               <button
                 onClick={() => setIsSigned(!isSigned)}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider transition-colors border ${
+                className={`px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider transition-colors border shadow-sm ${
                   isSigned
-                    ? 'bg-[var(--key-operator)] text-[var(--accent-primary)] border-[var(--accent-primary)]/40'
-                    : 'bg-[var(--key-function)] text-[var(--text-muted)] border-[var(--border-color)] hover:text-[var(--text-primary)]'
+                    ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
+                    : 'bg-[var(--chip-bg)] text-[var(--chip-text)] border-[var(--border-color)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 {isSigned ? 'SIGNED (2s-C)' : 'UNSIGNED'}
@@ -290,12 +290,12 @@ export const ProgrammerMode: React.FC = () => {
         </div>
 
         {/* Tactile Bit-Grid Field Visualizer */}
-        <div className="p-3 md:p-4 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] space-y-2.5">
+        <div className="p-3 md:p-4 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-color)] space-y-2.5">
           <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
             <span className="font-bold text-[var(--accent-primary)] tracking-wider text-[11px]">
               BIT FIELD MATRIX ({totalBits}-BIT REG)
             </span>
-            <div className="flex items-center gap-2 text-[10px]">
+            <div className="flex items-center gap-2 text-[10px] font-bold">
               <button
                 onClick={() => updateCurrentValue(0n)}
                 className="hover:text-[var(--text-primary)] transition-colors"
@@ -326,8 +326,8 @@ export const ProgrammerMode: React.FC = () => {
               const lowBit = Math.max(0, highBit - 15);
 
               return (
-                <div key={groupIdx} className="flex flex-col gap-1 bg-black/25 p-2 rounded-xl border border-white/5">
-                  <div className="flex justify-between text-[9px] text-[var(--text-muted)] px-1">
+                <div key={groupIdx} className="flex flex-col gap-1 bg-black/5 dark:bg-black/25 p-2 rounded-xl border border-black/10 dark:border-white/5">
+                  <div className="flex justify-between text-[9px] text-[var(--text-muted)] font-bold px-1">
                     <span>BIT {highBit}</span>
                     <span>BIT {lowBit}</span>
                   </div>
@@ -341,11 +341,11 @@ export const ProgrammerMode: React.FC = () => {
                           key={bitIdx}
                           onClick={() => handleBitToggle(bitIdx)}
                           title={`Toggle Bit ${bitIdx} (Current: ${isSet ? '1' : '0'})`}
-                          className={`w-6 h-7 rounded flex flex-col items-center justify-center text-[11px] font-bold transition-all ${
+                          className={`w-6 h-7 rounded-lg flex flex-col items-center justify-center text-[11px] font-bold transition-all border shadow-sm ${
                             isSet
-                              ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] shadow-sm'
-                              : 'bg-[var(--key-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                          } ${bitIdx % 4 === 0 && bitIdx !== lowBit ? 'mr-1.5 border-r border-white/10 pr-0.5' : ''}`}
+                              ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
+                              : 'bg-[var(--chip-bg)] text-[var(--chip-text)] border-[var(--border-color)] hover:border-[var(--border-highlight)]'
+                          } ${bitIdx % 4 === 0 && bitIdx !== lowBit ? 'mr-1.5 border-r border-black/15 dark:border-white/10 pr-0.5' : ''}`}
                         >
                           {isSet ? '1' : '0'}
                         </button>

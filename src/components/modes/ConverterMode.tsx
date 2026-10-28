@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { UnitCategory, UnitDefinition, CurrencyRate } from '../../types/converter';
-import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check, Sparkles, Sliders } from 'lucide-react';
+import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check, Sliders, ArrowRight } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/exportHelper';
 import { useToast } from '../../context/ToastContext';
 import { useHistory } from '../../context/HistoryContext';
@@ -80,22 +80,25 @@ const UNIT_DEFINITIONS: Record<Exclude<UnitCategory, 'currency'>, UnitDefinition
 
 const DEFAULT_CURRENCY_RATES: CurrencyRate[] = [
   { code: 'USD', name: 'US Dollar', symbol: '$', ratePerUSD: 1.0 },
-  { code: 'EUR', name: 'Euro', symbol: '€', ratePerUSD: 0.92 },
-  { code: 'GBP', name: 'British Pound', symbol: '£', ratePerUSD: 0.79 },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹', ratePerUSD: 83.25 },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹', ratePerUSD: 83.35 },
+  { code: 'EUR', name: 'Euro', symbol: '€', ratePerUSD: 0.925 },
+  { code: 'GBP', name: 'British Pound', symbol: '£', ratePerUSD: 0.792 },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED', ratePerUSD: 3.6725 },
   { code: 'JPY', name: 'Japanese Yen', symbol: '¥', ratePerUSD: 154.5 },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', ratePerUSD: 1.36 },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', ratePerUSD: 1.365 },
   { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', ratePerUSD: 1.52 },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', ratePerUSD: 0.89 },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', ratePerUSD: 7.23 },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', ratePerUSD: 1.35 },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', ratePerUSD: 0.895 },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', ratePerUSD: 7.235 },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', ratePerUSD: 1.352 },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR', ratePerUSD: 3.751 },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$', ratePerUSD: 1.685 },
 ];
 
 export const ConverterMode: React.FC = () => {
   const { showToast } = useToast();
   const { addHistory } = useHistory();
 
-  const [category, setCategory] = useState<UnitCategory>('length');
+  const [category, setCategory] = useState<UnitCategory>('currency');
   const [inputValue, setInputValue] = useState<string>('1');
   const [fromUnitId, setFromUnitId] = useState<string>('m');
   const [toUnitId, setToUnitId] = useState<string>('ft');
@@ -106,7 +109,7 @@ export const ConverterMode: React.FC = () => {
     return saved ? JSON.parse(saved) : DEFAULT_CURRENCY_RATES;
   });
   const [fromCurrency, setFromCurrency] = useState<string>('USD');
-  const [toCurrency, setToCurrency] = useState<string>('EUR');
+  const [toCurrency, setToCurrency] = useState<string>('INR');
   const [isEditRatesOpen, setIsEditRatesOpen] = useState(false);
   const [tempRates, setTempRates] = useState<CurrencyRate[]>(currencyRates);
   const [copied, setCopied] = useState(false);
@@ -144,7 +147,7 @@ export const ConverterMode: React.FC = () => {
     }
   }, [category, inputValue, fromUnitId, toUnitId, fromCurrency, toCurrency, currencyRates]);
 
-  // Unit relation preview (1 From = ? To)
+  // Unit relation preview
   const unitRelationPreview = useMemo(() => {
     if (category === 'currency') {
       const fromRate = currencyRates.find((c) => c.code === fromCurrency)?.ratePerUSD || 1;
@@ -204,6 +207,12 @@ export const ConverterMode: React.FC = () => {
     showToast('Currency rates reset to base defaults', 'info');
   };
 
+  // Quick Currency Preset selection
+  const handleSelectCurrencyPair = (from: string, to: string) => {
+    setFromCurrency(from);
+    setToCurrency(to);
+  };
+
   // All other units quick conversion list
   const allConversions = useMemo(() => {
     const val = parseFloat(inputValue);
@@ -238,6 +247,7 @@ export const ConverterMode: React.FC = () => {
   }, [category, inputValue, fromUnitId, fromCurrency, currencyRates]);
 
   const categories: { id: UnitCategory; code: string; label: string }[] = [
+    { id: 'currency', code: 'FX', label: 'Currency & Forex' },
     { id: 'length', code: 'LEN', label: 'Length' },
     { id: 'mass', code: 'MAS', label: 'Mass & Weight' },
     { id: 'temperature', code: 'TMP', label: 'Temperature' },
@@ -246,7 +256,6 @@ export const ConverterMode: React.FC = () => {
     { id: 'energy', code: 'ENG', label: 'Energy' },
     { id: 'area', code: 'ARE', label: 'Area' },
     { id: 'volume', code: 'VOL', label: 'Volume' },
-    { id: 'currency', code: 'FX', label: 'Foreign FX' },
   ];
 
   return (
@@ -254,18 +263,18 @@ export const ConverterMode: React.FC = () => {
       {/* Outer Hardware Chassis */}
       <div className="hardware-chassis p-4 md:p-6 rounded-3xl space-y-4">
         {/* Category Dock */}
-        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--dock-bg)] border border-[var(--dock-border)] overflow-x-auto scrollbar-none">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
                 category === cat.id
-                  ? 'bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-highlight)] shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                  ? 'bg-[var(--dock-active-bg)] text-[var(--accent-primary)] border border-[var(--border-highlight)] shadow-sm'
+                  : 'text-[var(--dock-item-text)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <span className="text-[9px] px-1 rounded bg-black/30 opacity-70">
+              <span className="text-[9px] px-1 rounded bg-black/15 dark:bg-black/30 opacity-80">
                 {cat.code}
               </span>
               <span>{cat.label}</span>
@@ -273,14 +282,43 @@ export const ConverterMode: React.FC = () => {
           ))}
         </div>
 
-        {/* Metrology & Conversion Instrument */}
+        {/* Currency Quick-Pair Shortcuts (Shown when in Currency Mode) */}
+        {category === 'currency' && (
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5 text-xs">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider shrink-0">
+              Popular Forex Pairs:
+            </span>
+            {[
+              { from: 'USD', to: 'INR', label: '$ USD ⇄ ₹ INR' },
+              { from: 'EUR', to: 'INR', label: '€ EUR ⇄ ₹ INR' },
+              { from: 'GBP', to: 'INR', label: '£ GBP ⇄ ₹ INR' },
+              { from: 'AED', to: 'INR', label: 'AED ⇄ ₹ INR' },
+              { from: 'USD', to: 'EUR', label: '$ USD ⇄ € EUR' },
+              { from: 'USD', to: 'GBP', label: '$ USD ⇄ £ GBP' },
+            ].map((pair, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSelectCurrencyPair(pair.from, pair.to)}
+                className={`px-2.5 py-1 rounded-lg font-bold border transition-colors whitespace-nowrap text-[11px] ${
+                  fromCurrency === pair.from && toCurrency === pair.to
+                    ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
+                    : 'bg-[var(--chip-bg)] text-[var(--chip-text)] border-[var(--border-color)] hover:border-[var(--border-highlight)]'
+                }`}
+              >
+                {pair.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Metrology & Conversion Instrument Display */}
         <div className="instrument-display p-5 md:p-6 rounded-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--screen-text)]">
                 {categories.find((c) => c.id === category)?.label} Engine
               </span>
-              <span className="text-[10px] text-[var(--accent-primary)] bg-[var(--key-function)] px-2 py-0.5 rounded border border-[var(--border-color)]">
+              <span className="text-[10px] text-[var(--accent-primary)] bg-[var(--dock-bg)] font-bold px-2 py-0.5 rounded border border-[var(--border-color)]">
                 {unitRelationPreview}
               </span>
             </div>
@@ -291,9 +329,9 @@ export const ConverterMode: React.FC = () => {
                   setTempRates(currencyRates);
                   setIsEditRatesOpen(true);
                 }}
-                className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors"
+                className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--chip-bg)] text-[var(--chip-text)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors shadow-sm"
               >
-                <Edit3 className="w-3.5 h-3.5" />
+                <Edit3 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>Adjust FX Rates</span>
               </button>
             )}
@@ -302,8 +340,8 @@ export const ConverterMode: React.FC = () => {
           {/* Interactive Conversion Flow */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4">
             {/* SOURCE INPUT */}
-            <div className="space-y-2 p-4 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]">
-              <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
+            <div className="space-y-2 p-4 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-color)] shadow-inner">
+              <div className="flex items-center justify-between text-xs text-[var(--dock-item-text)] font-semibold">
                 <span className="font-bold">INPUT VALUE</span>
                 <span className="text-[10px]">SOURCE UNIT</span>
               </div>
@@ -312,17 +350,17 @@ export const ConverterMode: React.FC = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Enter value"
-                className="w-full text-2xl md:text-3xl font-bold bg-transparent text-[var(--screen-text)] focus:outline-none border-b border-[var(--border-color)] pb-1"
+                className="w-full text-2xl md:text-3xl font-bold bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               />
               {category === 'currency' ? (
                 <select
                   value={fromCurrency}
                   onChange={(e) => setFromCurrency(e.target.value)}
-                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                  className="w-full mt-2 p-2.5 rounded-xl bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] cursor-pointer"
                 >
                   {currencyRates.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.code} — {c.name} ({c.symbol})
+                      {c.code} ({c.symbol}) — {c.name}
                     </option>
                   ))}
                 </select>
@@ -330,7 +368,7 @@ export const ConverterMode: React.FC = () => {
                 <select
                   value={fromUnitId}
                   onChange={(e) => setFromUnitId(e.target.value)}
-                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                  className="w-full mt-2 p-2.5 rounded-xl bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] cursor-pointer"
                 >
                   {UNIT_DEFINITIONS[category].map((u) => (
                     <option key={u.id} value={u.id}>
@@ -346,20 +384,20 @@ export const ConverterMode: React.FC = () => {
               <button
                 onClick={handleSwap}
                 title="Swap Units"
-                className="p-3 rounded-full bg-[var(--key-action)] text-[var(--key-action-text)] shadow-md keycap-3d active:scale-95"
+                className="p-3.5 rounded-full bg-[var(--key-action)] text-[var(--key-action-text)] shadow-lg keycap-3d active:scale-95"
               >
                 <ArrowLeftRight className="w-4 h-4" />
               </button>
             </div>
 
             {/* TARGET RESULT */}
-            <div className="space-y-2 p-4 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]">
-              <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
+            <div className="space-y-2 p-4 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-color)] shadow-inner">
+              <div className="flex items-center justify-between text-xs text-[var(--dock-item-text)] font-semibold">
                 <span className="font-bold">CONVERTED RESULT</span>
                 <button
                   onClick={handleCopy}
                   title="Copy result"
-                  className="flex items-center gap-1 text-[11px] text-[var(--accent-primary)] hover:underline"
+                  className="flex items-center gap-1 text-[11px] font-bold text-[var(--accent-primary)] hover:underline"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -368,7 +406,7 @@ export const ConverterMode: React.FC = () => {
               <div
                 onClick={handleCopy}
                 title="Click to copy"
-                className="text-2xl md:text-3xl font-bold text-[var(--accent-primary)] border-b border-[var(--border-color)] pb-1 break-all cursor-pointer hover:opacity-90"
+                className="text-2xl md:text-3xl font-extrabold text-[var(--accent-primary)] bg-[var(--input-bg)] border border-[var(--input-border)] p-2 rounded-xl break-all cursor-pointer hover:opacity-90 shadow-inner"
               >
                 {convertedValue}
               </div>
@@ -376,11 +414,11 @@ export const ConverterMode: React.FC = () => {
                 <select
                   value={toCurrency}
                   onChange={(e) => setToCurrency(e.target.value)}
-                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                  className="w-full mt-2 p-2.5 rounded-xl bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] cursor-pointer"
                 >
                   {currencyRates.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.code} — {c.name} ({c.symbol})
+                      {c.code} ({c.symbol}) — {c.name}
                     </option>
                   ))}
                 </select>
@@ -388,7 +426,7 @@ export const ConverterMode: React.FC = () => {
                 <select
                   value={toUnitId}
                   onChange={(e) => setToUnitId(e.target.value)}
-                  className="w-full mt-2 p-2 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                  className="w-full mt-2 p-2.5 rounded-xl bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] cursor-pointer"
                 >
                   {UNIT_DEFINITIONS[category].map((u) => (
                     <option key={u.id} value={u.id}>
@@ -402,9 +440,9 @@ export const ConverterMode: React.FC = () => {
         </div>
 
         {/* Quick Reference Metrology Matrix */}
-        <div className="p-4 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] space-y-2.5">
+        <div className="p-4 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-color)] space-y-2.5">
           <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
-            <span className="font-bold uppercase tracking-wider text-[var(--text-secondary)] text-[10px]">
+            <span className="font-bold uppercase tracking-wider text-[var(--text-primary)] text-[10px]">
               Instant Relative Table ({category.toUpperCase()})
             </span>
             <span className="text-[10px] opacity-75">Click any card to select target</span>
@@ -418,17 +456,17 @@ export const ConverterMode: React.FC = () => {
                   if (category === 'currency') setToCurrency(conv.id);
                   else setToUnitId(conv.id);
                 }}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] border border-[var(--border-color)] cursor-pointer transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--input-bg)] hover:bg-[var(--chip-bg)] border border-[var(--border-color)] cursor-pointer transition-colors group shadow-sm"
               >
                 <div className="min-w-0 pr-2">
-                  <div className="text-[10px] text-[var(--text-muted)] truncate group-hover:text-[var(--text-secondary)]">
+                  <div className="text-[10px] text-[var(--text-muted)] truncate group-hover:text-[var(--text-secondary)] font-semibold">
                     {conv.name}
                   </div>
-                  <div className="text-sm font-bold text-[var(--screen-text)] truncate">
+                  <div className="text-sm font-bold text-[var(--input-text)] truncate">
                     {conv.value}
                   </div>
                 </div>
-                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[var(--key-function)] text-[var(--accent-primary)] border border-[var(--border-color)] shrink-0">
+                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[var(--chip-bg)] text-[var(--accent-primary)] border border-[var(--border-color)] shrink-0">
                   {conv.symbol}
                 </span>
               </div>
@@ -454,18 +492,18 @@ export const ConverterMode: React.FC = () => {
               {tempRates.map((rate, idx) => (
                 <div
                   key={rate.code}
-                  className="flex items-center justify-between p-2 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)]"
+                  className="flex items-center justify-between p-2 rounded-xl bg-[var(--dock-bg)] border border-[var(--border-color)]"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[var(--accent-primary)] w-10">
                       {rate.code}
                     </span>
-                    <span className="text-[11px] text-[var(--text-secondary)] truncate max-w-[120px]">
+                    <span className="text-[11px] text-[var(--text-primary)] font-semibold truncate max-w-[120px]">
                       {rate.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-[var(--text-muted)]">1 USD =</span>
+                    <span className="text-[10px] text-[var(--text-muted)] font-bold">1 USD =</span>
                     <input
                       type="number"
                       step="0.01"
@@ -476,7 +514,7 @@ export const ConverterMode: React.FC = () => {
                         copy[idx].ratePerUSD = val;
                         setTempRates(copy);
                       }}
-                      className="w-24 px-2 py-1 rounded bg-[var(--key-default)] border border-[var(--border-color)] font-mono text-xs text-right text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                      className="w-24 px-2 py-1 rounded bg-[var(--input-bg)] border border-[var(--input-border)] font-mono text-xs text-right text-[var(--input-text)] font-bold focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
                     />
                   </div>
                 </div>
@@ -486,7 +524,7 @@ export const ConverterMode: React.FC = () => {
             <div className="flex items-center justify-between pt-4 mt-4 border-t border-[var(--border-color)]">
               <button
                 onClick={handleResetRates}
-                className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-semibold"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
@@ -495,7 +533,7 @@ export const ConverterMode: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsEditRatesOpen(false)}
-                  className="px-3 py-1.5 rounded-xl bg-[var(--key-function)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="px-3 py-1.5 rounded-xl bg-[var(--chip-bg)] text-xs text-[var(--chip-text)] font-bold hover:opacity-80"
                 >
                   Cancel
                 </button>

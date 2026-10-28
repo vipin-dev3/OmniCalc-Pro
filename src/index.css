@@ -15,7 +15,7 @@
     --border-highlight: rgba(255, 255, 255, 0.16);
     --text-primary: #f0f4f8;
     --text-secondary: #94a3b8;
-    --text-muted: #475569;
+    --text-muted: #64748b;
     --accent-primary: #f59e0b;
     --accent-hover: #d97706;
     --accent-text: #0f172a;
@@ -49,7 +49,28 @@
     --key-shadow: #07090e;
     --screen-bg: #07090e;
     --screen-text: #f8fafc;
-    --screen-subtext: #64748b;
+    --screen-subtext: #94a3b8;
+
+    /* Semantic Form & Navigation Controls */
+    --input-bg: #090d15;
+    --input-text: #f8fafc;
+    --input-border: rgba(255, 255, 255, 0.12);
+
+    --dock-bg: #0f141d;
+    --dock-border: rgba(255, 255, 255, 0.08);
+    --dock-item-text: #94a3b8;
+    --dock-active-bg: #1c2331;
+    --dock-active-text: #ffffff;
+
+    --chip-bg: #141923;
+    --chip-text: #94a3b8;
+    --chip-active-bg: #f59e0b;
+    --chip-active-text: #0a0e17;
+
+    --header-btn-bg: #141923;
+    --header-btn-hover: #1e2533;
+    --header-btn-text: #e2e8f0;
+    --header-btn-border: rgba(255, 255, 255, 0.08);
   }
 
   /* =========================================================================
@@ -59,12 +80,12 @@
   .theme-clean-light {
     --bg-main: #ece6dc;
     --bg-card: #f5f1ea;
-    --bg-header: rgba(236, 230, 220, 0.92);
-    --border-color: rgba(0, 0, 0, 0.1);
-    --border-highlight: rgba(0, 0, 0, 0.18);
+    --bg-header: rgba(236, 230, 220, 0.95);
+    --border-color: rgba(0, 0, 0, 0.12);
+    --border-highlight: rgba(0, 0, 0, 0.22);
     --text-primary: #1c1917;
-    --text-secondary: #57534e;
-    --text-muted: #8c827a;
+    --text-secondary: #44403c;
+    --text-muted: #57534e;
     --accent-primary: #ea580c;
     --accent-hover: #c2410c;
     --accent-text: #ffffff;
@@ -75,14 +96,14 @@
     --key-default-border: rgba(255, 255, 255, 0.12);
     --key-default-text: #f5f5f4;
     
-    --key-function: #44403c;
-    --key-function-hover: #57534e;
+    --key-function: #383431;
+    --key-function-hover: #47433f;
     --key-function-border: rgba(255, 255, 255, 0.08);
-    --key-function-text: #d6d3d1;
+    --key-function-text: #e7e5e4;
     
-    --key-operator: #383431;
-    --key-operator-hover: #47433f;
-    --key-operator-border: rgba(234, 88, 12, 0.3);
+    --key-operator: #2c2826;
+    --key-operator-hover: #3d3835;
+    --key-operator-border: rgba(234, 88, 12, 0.35);
     --key-operator-text: #fdba74;
     
     --key-action: #ea580c;
@@ -90,15 +111,36 @@
     --key-action-border: #f97316;
     --key-action-text: #ffffff;
 
-    --key-danger: #78350f;
-    --key-danger-hover: #92400e;
-    --key-danger-border: rgba(251, 146, 60, 0.4);
-    --key-danger-text: #fde047;
+    --key-danger: #7c2d12;
+    --key-danger-hover: #9a3412;
+    --key-danger-border: rgba(251, 146, 60, 0.45);
+    --key-danger-text: #fef08a;
 
     --key-shadow: #b8afa2;
     --screen-bg: #dfe5d6; /* Vintage LCD green reflector */
-    --screen-text: #192218;
-    --screen-subtext: #485c46;
+    --screen-text: #0f172a; /* High contrast black ink */
+    --screen-subtext: #334155;
+
+    /* Semantic Form & Navigation Controls: Crisp light theme readability */
+    --input-bg: #ffffff;
+    --input-text: #0f172a;
+    --input-border: #c8c0b2;
+
+    --dock-bg: #ded7cb;
+    --dock-border: rgba(0, 0, 0, 0.15);
+    --dock-item-text: #44403c;
+    --dock-active-bg: #242426;
+    --dock-active-text: #ffffff;
+
+    --chip-bg: #ded6ca;
+    --chip-text: #292524;
+    --chip-active-bg: #ea580c;
+    --chip-active-text: #ffffff;
+
+    --header-btn-bg: #ded6ca;
+    --header-btn-hover: #d3caba;
+    --header-btn-text: #292524;
+    --header-btn-border: rgba(0, 0, 0, 0.14);
   }
 
   /* =========================================================================
@@ -113,7 +155,7 @@
     --border-highlight: rgba(52, 211, 153, 0.35);
     --text-primary: #34d399;
     --text-secondary: #059669;
-    --text-muted: #065f46;
+    --text-muted: #10b981;
     --accent-primary: #10b981;
     --accent-hover: #059669;
     --accent-text: #022c22;
@@ -148,6 +190,27 @@
     --screen-bg: #030806;
     --screen-text: #34d399;
     --screen-subtext: #059669;
+
+    /* Semantic Form & Navigation Controls */
+    --input-bg: #040907;
+    --input-text: #34d399;
+    --input-border: rgba(52, 211, 153, 0.25);
+
+    --dock-bg: #07120e;
+    --dock-border: rgba(52, 211, 153, 0.2);
+    --dock-item-text: #34d399;
+    --dock-active-bg: #10b981;
+    --dock-active-text: #022c22;
+
+    --chip-bg: #0a1813;
+    --chip-text: #6ee7b7;
+    --chip-active-bg: #10b981;
+    --chip-active-text: #022c22;
+
+    --header-btn-bg: #0a1813;
+    --header-btn-hover: #112920;
+    --header-btn-text: #34d399;
+    --header-btn-border: rgba(52, 211, 153, 0.2);
   }
 
   /* =========================================================================
@@ -162,7 +225,7 @@
     --border-highlight: rgba(255, 255, 255, 0.22);
     --text-primary: #fafafa;
     --text-secondary: #a1a1aa;
-    --text-muted: #52525b;
+    --text-muted: #71717a;
     --accent-primary: #38bdf8;
     --accent-hover: #0284c7;
     --accent-text: #082f49;
@@ -196,7 +259,28 @@
     --key-shadow: #000000;
     --screen-bg: #000000;
     --screen-text: #ffffff;
-    --screen-subtext: #71717a;
+    --screen-subtext: #a1a1aa;
+
+    /* Semantic Form & Navigation Controls */
+    --input-bg: #000000;
+    --input-text: #ffffff;
+    --input-border: rgba(255, 255, 255, 0.18);
+
+    --dock-bg: #08080a;
+    --dock-border: rgba(255, 255, 255, 0.1);
+    --dock-item-text: #a1a1aa;
+    --dock-active-bg: #181c24;
+    --dock-active-text: #ffffff;
+
+    --chip-bg: #121215;
+    --chip-text: #a1a1aa;
+    --chip-active-bg: #0284c7;
+    --chip-active-text: #ffffff;
+
+    --header-btn-bg: #121215;
+    --header-btn-hover: #1c1c22;
+    --header-btn-text: #ffffff;
+    --header-btn-border: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -250,7 +334,7 @@ body {
   border: 1px solid var(--border-color);
 }
 
-/* Subtle CRT phosphor screen scanlines (applied via utility class) */
+/* Subtle CRT phosphor screen scanlines */
 .scanlines {
   position: relative;
 }
@@ -288,7 +372,7 @@ body {
 
 /* Machined control knob / toggle dock */
 .machined-dock {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--dock-bg);
+  border: 1px solid var(--dock-border);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.08);
 }

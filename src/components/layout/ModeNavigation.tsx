@@ -38,14 +38,14 @@ export const ModeNavigation: React.FC<ModeNavigationProps> = ({ currentMode, onM
               onClick={() => onModeChange(mode.id)}
               className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-150 whitespace-nowrap focus:outline-none ${
                 isActive
-                  ? 'text-[var(--text-primary)] shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-white/5'
+                  ? 'text-[var(--dock-active-text)] font-bold shadow-sm'
+                  : 'text-[var(--dock-item-text)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5'
               }`}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeModeSelector"
-                  className="absolute inset-0 rounded-xl bg-[var(--key-default)] border border-[var(--border-highlight)] shadow-sm"
+                  className="absolute inset-0 rounded-xl bg-[var(--dock-active-bg)] border border-[var(--border-highlight)] shadow-sm"
                   transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                 />
               )}
@@ -54,14 +54,14 @@ export const ModeNavigation: React.FC<ModeNavigationProps> = ({ currentMode, onM
                   className={`text-[9px] px-1 py-0.2 rounded font-mono font-bold ${
                     isActive
                       ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]'
-                      : 'bg-black/30 text-[var(--text-muted)] border border-white/5'
+                      : 'bg-black/10 dark:bg-black/30 text-[var(--dock-item-text)] border border-black/10 dark:border-white/5'
                   }`}
                 >
                   {mode.code}
                 </span>
                 <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[var(--accent-primary)]' : ''}`} />
                 <span>{mode.label}</span>
-                <span className="text-[9px] opacity-40 font-normal hidden lg:inline ml-0.5">
+                <span className="text-[9px] opacity-60 font-normal hidden lg:inline ml-0.5">
                   ({mode.hotkey.replace('Alt+', '⌥')})
                 </span>
               </span>

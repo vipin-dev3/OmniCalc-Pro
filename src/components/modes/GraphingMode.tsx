@@ -323,7 +323,7 @@ export const GraphingMode: React.FC = () => {
       {/* Outer Hardware Chassis */}
       <div className="hardware-chassis p-4 md:p-6 rounded-3xl space-y-4">
         {/* Function Inputs & Presets Ribbon */}
-        <div className="p-4 rounded-2xl bg-[var(--key-function)] border border-[var(--border-color)] space-y-3">
+        <div className="p-4 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-color)] space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-color)] pb-2.5">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-[var(--accent-primary)]" />
@@ -342,7 +342,7 @@ export const GraphingMode: React.FC = () => {
                   }
                 }}
                 defaultValue=""
-                className="p-1.5 rounded-lg bg-[var(--key-default)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]"
+                className="p-1.5 rounded-lg bg-[var(--chip-bg)] text-[var(--chip-text)] font-bold border border-[var(--border-color)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)] cursor-pointer"
               >
                 <option value="" disabled>
                   Load Formula Preset...
@@ -369,10 +369,10 @@ export const GraphingMode: React.FC = () => {
             {functions.map((fn, index) => (
               <div
                 key={fn.id}
-                className="flex items-center gap-2 p-2 rounded-xl bg-[var(--key-default)] border border-[var(--border-color)]"
+                className="flex items-center gap-2 p-2 rounded-xl bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] shadow-inner"
               >
                 <div
-                  className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                  className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
                   style={{ backgroundColor: fn.color }}
                 />
                 <span className="text-xs font-bold text-[var(--text-muted)] w-14">
@@ -383,23 +383,23 @@ export const GraphingMode: React.FC = () => {
                   value={fn.expression}
                   onChange={(e) => updateFunction(fn.id, { expression: e.target.value })}
                   placeholder="e.g. sin(x), x^2, e^x"
-                  className="flex-1 bg-transparent text-sm text-[var(--text-primary)] font-bold focus:outline-none"
+                  className="flex-1 bg-transparent text-sm text-[var(--input-text)] font-bold focus:outline-none"
                 />
 
                 {/* Visible Toggle */}
                 <button
                   onClick={() => updateFunction(fn.id, { visible: !fn.visible })}
-                  className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                   title={fn.visible ? 'Hide Curve' : 'Show Curve'}
                 >
-                  {fn.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-40" />}
+                  {fn.visible ? <Eye className="w-4 h-4 text-[var(--accent-primary)]" /> : <EyeOff className="w-4 h-4 opacity-40" />}
                 </button>
 
                 {/* Remove */}
                 {functions.length > 1 && (
                   <button
                     onClick={() => removeFunction(fn.id)}
-                    className="p-1 rounded text-[var(--text-muted)] hover:text-rose-400"
+                    className="p-1 rounded text-[var(--text-muted)] hover:text-rose-500 transition-colors"
                     title="Remove function"
                   >
                     <Trash2 className="w-4 h-4" />

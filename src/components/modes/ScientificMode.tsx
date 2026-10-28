@@ -175,32 +175,32 @@ export const ScientificMode: React.FC = () => {
         />
 
         {/* Function Modifiers & Memory Register Ribbon */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[var(--key-function)] border border-[var(--border-color)] text-xs font-mono">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[var(--dock-bg)] border border-[var(--dock-border)] text-xs font-mono">
           {/* Shift / Angle Modifiers */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setIsSecond(!isSecond)}
-              className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
+              className={`px-3 py-1 rounded-lg font-bold border transition-colors shadow-sm ${
                 isSecond
-                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
-                  : 'bg-[var(--key-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
+                  : 'bg-[var(--chip-bg)] text-[var(--chip-text)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
               }`}
             >
               2nd
             </button>
             <button
               onClick={() => setIsHyperbolic(!isHyperbolic)}
-              className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
+              className={`px-3 py-1 rounded-lg font-bold border transition-colors shadow-sm ${
                 isHyperbolic
-                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)] shadow-sm'
-                  : 'bg-[var(--key-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
+                  : 'bg-[var(--chip-bg)] text-[var(--chip-text)] hover:text-[var(--text-primary)] border-[var(--border-color)]'
               }`}
             >
               hyp
             </button>
             <button
               onClick={() => setAngleUnit((u) => (u === 'deg' ? 'rad' : 'deg'))}
-              className="px-2.5 py-1 rounded-lg font-bold bg-[var(--key-default)] text-[var(--accent-primary)] border border-[var(--border-color)]"
+              className="px-2.5 py-1 rounded-lg font-bold bg-[var(--chip-bg)] text-[var(--accent-primary)] border border-[var(--border-color)] shadow-sm"
             >
               {angleUnit.toUpperCase()}
             </button>
@@ -208,41 +208,41 @@ export const ScientificMode: React.FC = () => {
 
           {/* Memory Register Bar */}
           <div className="flex items-center gap-1">
-            <div className="hidden sm:flex items-center gap-1 mr-1 text-[10px] text-[var(--text-muted)] border-r border-[var(--border-color)] pr-2">
-              <span>REG</span>
-              <span className="font-bold text-[var(--text-secondary)]">
+            <div className="hidden sm:flex items-center gap-1 mr-1 text-[10px] text-[var(--dock-item-text)] border-r border-[var(--border-color)] pr-2">
+              <span className="font-semibold">REG</span>
+              <span className="font-bold text-[var(--text-primary)]">
                 {memory !== 0 ? formatNumber(memory) : '0'}
               </span>
             </div>
             <button
               onClick={() => handleMemory('MC')}
               disabled={memory === 0}
-              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 border border-[var(--border-color)]"
+              className="px-2 py-0.5 rounded-lg bg-[var(--chip-bg)] hover:opacity-80 text-[var(--chip-text)] disabled:opacity-30 border border-[var(--border-color)] font-bold text-[11px]"
             >
               MC
             </button>
             <button
               onClick={() => handleMemory('MR')}
               disabled={memory === 0}
-              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 border border-[var(--border-color)]"
+              className="px-2 py-0.5 rounded-lg bg-[var(--chip-bg)] hover:opacity-80 text-[var(--chip-text)] disabled:opacity-30 border border-[var(--border-color)] font-bold text-[11px]"
             >
               MR
             </button>
             <button
               onClick={() => handleMemory('M+')}
-              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
+              className="px-2 py-0.5 rounded-lg bg-[var(--chip-bg)] hover:opacity-80 text-[var(--chip-text)] border border-[var(--border-color)] font-bold text-[11px]"
             >
               M+
             </button>
             <button
               onClick={() => handleMemory('M-')}
-              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
+              className="px-2 py-0.5 rounded-lg bg-[var(--chip-bg)] hover:opacity-80 text-[var(--chip-text)] border border-[var(--border-color)] font-bold text-[11px]"
             >
               M-
             </button>
             <button
               onClick={() => handleMemory('MS')}
-              className="px-2 py-0.5 rounded bg-[var(--key-default)] hover:bg-[var(--key-default-hover)] text-[var(--accent-primary)] border border-[var(--border-color)]"
+              className="px-2 py-0.5 rounded-lg bg-[var(--chip-bg)] hover:opacity-80 text-[var(--accent-primary)] border border-[var(--border-color)] font-bold text-[11px]"
             >
               MS
             </button>
