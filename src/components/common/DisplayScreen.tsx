@@ -141,7 +141,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
               type="button"
               onClick={onToggleAngleUnit}
               title="Click to toggle DEG / RAD mode"
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold tracking-wider transition-colors border bg-[var(--key-function)] hover:bg-[var(--key-function-hover)] text-[var(--accent-primary)] border-[var(--border-color)] shadow-sm"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold tracking-wider transition-colors border bg-[var(--chip-bg)] hover:border-[var(--border-highlight)] text-[var(--accent-primary)] border-[var(--border-color)] shadow-sm"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" />
               <span>{angleUnit.toUpperCase()}</span>
@@ -151,7 +151,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           {hasMemory && (
             <span
               title="Memory Register active (MS / M+)"
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-500/15 text-amber-400 border border-amber-500/30"
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-500/15 text-amber-500 border border-amber-500/30"
             >
               <span className="w-1 h-1 rounded-full bg-amber-400" />
               <span>MEM</span>
@@ -159,7 +159,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           )}
 
           {error && (
-            <span className="flex items-center gap-1 text-rose-400 font-sans text-xs bg-rose-950/40 px-2 py-0.5 rounded border border-rose-500/30">
+            <span className="flex items-center gap-1 text-rose-500 font-sans text-xs bg-rose-500/15 px-2 py-0.5 rounded border border-rose-500/30 font-semibold">
               <AlertCircle className="w-3 h-3" />
               <span>{error}</span>
             </span>
@@ -169,12 +169,12 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         {/* Tactile Tools */}
         <div className="flex items-center gap-1.5">
           {/* Cursor manual step buttons */}
-          <div className="flex items-center bg-[var(--key-function)] rounded-lg p-0.5 border border-[var(--border-color)]">
+          <div className="flex items-center bg-[var(--chip-bg)] rounded-lg p-0.5 border border-[var(--border-color)] shadow-sm">
             <button
               type="button"
               onClick={() => onCursorMove(Math.max(0, cursorPosition - 1))}
               disabled={cursorPosition <= 0}
-              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-20 transition-colors"
+              className="p-1 rounded text-[var(--screen-subtext)] hover:text-[var(--screen-text)] disabled:opacity-20 transition-colors"
               title="Move cursor left (←)"
             >
               <ChevronLeft className="w-3 h-3" />
@@ -184,7 +184,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
               type="button"
               onClick={() => onCursorMove(Math.min(expression.length, cursorPosition + 1))}
               disabled={cursorPosition >= expression.length}
-              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-20 transition-colors"
+              className="p-1 rounded text-[var(--screen-subtext)] hover:text-[var(--screen-text)] disabled:opacity-20 transition-colors"
               title="Move cursor right (→)"
             >
               <ChevronRight className="w-3 h-3" />
@@ -196,10 +196,10 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
             type="button"
             onClick={handleCopy}
             title="Copy value to clipboard"
-            className="p-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--key-function)] hover:bg-[var(--key-function-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-1"
+            className="p-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--chip-bg)] hover:border-[var(--border-highlight)] text-[var(--screen-subtext)] hover:text-[var(--screen-text)] transition-colors flex items-center gap-1 shadow-sm"
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
             ) : (
               <Copy className="w-3.5 h-3.5" />
             )}

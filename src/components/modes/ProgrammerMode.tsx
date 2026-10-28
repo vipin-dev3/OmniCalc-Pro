@@ -249,21 +249,21 @@ export const ProgrammerMode: React.FC = () => {
                 onClick={() => handleBaseSelect(item.id)}
                 className={`flex items-center justify-between p-2 md:p-2.5 rounded-xl cursor-pointer transition-all border ${
                   activeBase === item.id
-                    ? 'bg-[var(--key-operator)] border-[var(--accent-primary)]/50 shadow-inner'
-                    : 'bg-[var(--key-function)] border-transparent hover:border-[var(--border-color)]'
+                    ? 'bg-black/10 dark:bg-white/10 border-[var(--accent-primary)]/60 shadow-sm'
+                    : 'bg-black/5 dark:bg-white/5 border-transparent hover:border-[var(--border-color)]'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
-                    className={`text-[10px] font-bold w-10 py-0.5 rounded text-center shrink-0 border ${
+                    className={`text-[10px] font-bold w-10 py-0.5 rounded text-center shrink-0 border shadow-sm ${
                       activeBase === item.id
                         ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] border-[var(--accent-primary)]'
-                        : 'bg-[var(--key-default)] text-[var(--text-muted)] border-[var(--border-color)]'
+                        : 'bg-[var(--chip-bg)] text-[var(--chip-text)] border-[var(--border-color)]'
                     }`}
                   >
                     {item.label}
                   </span>
-                  <span className="text-sm md:text-base text-[var(--screen-text)] font-semibold tracking-wider truncate">
+                  <span className="text-sm md:text-base text-[var(--screen-text)] font-bold tracking-wider truncate">
                     {item.id === 'BIN'
                       ? item.val.match(/.{1,4}/g)?.join(' ') || item.val
                       : item.val}
@@ -276,10 +276,10 @@ export const ProgrammerMode: React.FC = () => {
                     handleCopy(item.val, item.label);
                   }}
                   title={`Copy ${item.label} value`}
-                  className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+                  className="p-1 rounded text-[var(--screen-subtext)] hover:text-[var(--screen-text)] transition-colors shrink-0"
                 >
                   {copiedBase === item.label ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
                   )}
