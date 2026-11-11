@@ -1,9 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { UnitCategory, UnitDefinition, CurrencyRate } from '../../types/converter';
-import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check, Sliders, ArrowRight } from 'lucide-react';
+import { ArrowLeftRight, Copy, Edit3, RotateCcw, Check, Sliders, ArrowRight, RefreshCw, Radio } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/exportHelper';
 import { useToast } from '../../context/ToastContext';
 import { useHistory } from '../../context/HistoryContext';
+import {
+  DEFAULT_CURRENCY_RATES,
+  getSavedCurrencyRates,
+  getLastLiveUpdateTimestamp,
+  fetchLiveExchangeRates,
+  saveCurrencyRates,
+} from '../../utils/currencyService';
 
 // Standard unit definitions
 const UNIT_DEFINITIONS: Record<Exclude<UnitCategory, 'currency'>, UnitDefinition[]> = {
@@ -78,22 +85,6 @@ const UNIT_DEFINITIONS: Record<Exclude<UnitCategory, 'currency'>, UnitDefinition
   ],
 };
 
-const DEFAULT_CURRENCY_RATES: CurrencyRate[] = [
-  { code: 'USD', name: 'US Dollar', symbol: '$', ratePerUSD: 1.0 },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹', ratePerUSD: 83.35 },
-  { code: 'EUR', name: 'Euro', symbol: '€', ratePerUSD: 0.925 },
-  { code: 'GBP', name: 'British Pound', symbol: '£', ratePerUSD: 0.792 },
-  { code: 'AED', name: 'UAE Dirham', symbol: 'AED', ratePerUSD: 3.6725 },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', ratePerUSD: 154.5 },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', ratePerUSD: 1.365 },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', ratePerUSD: 1.52 },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', ratePerUSD: 0.895 },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', ratePerUSD: 7.235 },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', ratePerUSD: 1.352 },
-  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR', ratePerUSD: 3.751 },
-  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$', ratePerUSD: 1.685 },
-];
-
 export const ConverterMode: React.FC = () => {
   const { showToast } = useToast();
   const { addHistory } = useHistory();
@@ -105,14 +96,51 @@ export const ConverterMode: React.FC = () => {
 
   // Currencies state
   const [currencyRates, setCurrencyRates] = useState<CurrencyRate[]>(() => {
-    const saved = localStorage.getItem('omni_calc_currencies');
-    return saved ? JSON.parse(saved) : DEFAULT_CURRENCY_RATES;
+    return getSavedCurrencyRates();
   });
   const [fromCurrency, setFromCurrency] = useState<string>('USD');
   const [toCurrency, setToCurrency] = useState<string>('INR');
   const [isEditRatesOpen, setIsEditRatesOpen] = useState(false);
   const [tempRates, setTempRates] = useState<CurrencyRate[]>(currencyRates);
   const [copied, setCopied] = useState(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(getLastLiveUpdateTimestamp);
+
+  // Sync with live real-time market exchange rates
+  const handleSyncLiveRates = async (showFeedback = true) => {
+    setIsSyncing(true);
+    try {
+      const result = await fetchLiveExchangeRates(currencyRates);
+      if (result.success && result.rates) {
+        setCurrencyRates(result.rates);
+        setTempRates(result.rates);
+        setLastUpdated(result.timestamp || new Date().toUTCString());
+        if (showFeedback) {
+          showToast('Updated live real-time market exchange rates!', 'success');
+        }
+      } else {
+        if (showFeedback) {
+          showToast(result.error || 'Failed to update rates', 'error');
+        }
+      }
+    } catch {
+      if (showFeedback) {
+        showToast('Network error while fetching live currency rates', 'error');
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Auto-fetch fresh rates on mount if never updated or older than 12 hours
+  useEffect(() => {
+    if (category === 'currency') {
+      const last = getLastLiveUpdateTimestamp();
+      if (!last) {
+        handleSyncLiveRates(false);
+      }
+    }
+  }, [category]);
 
   // Update default units when category changes
   const handleCategoryChange = (cat: UnitCategory) => {
@@ -195,7 +223,7 @@ export const ConverterMode: React.FC = () => {
   // Save edited currency rates
   const handleSaveRates = () => {
     setCurrencyRates(tempRates);
-    localStorage.setItem('omni_calc_currencies', JSON.stringify(tempRates));
+    saveCurrencyRates(tempRates, lastUpdated || undefined);
     setIsEditRatesOpen(false);
     showToast('Currency exchange rates updated', 'success');
   };
@@ -203,7 +231,7 @@ export const ConverterMode: React.FC = () => {
   const handleResetRates = () => {
     setTempRates(DEFAULT_CURRENCY_RATES);
     setCurrencyRates(DEFAULT_CURRENCY_RATES);
-    localStorage.setItem('omni_calc_currencies', JSON.stringify(DEFAULT_CURRENCY_RATES));
+    saveCurrencyRates(DEFAULT_CURRENCY_RATES);
     showToast('Currency rates reset to base defaults', 'info');
   };
 
@@ -313,7 +341,7 @@ export const ConverterMode: React.FC = () => {
 
         {/* Metrology & Conversion Instrument Display */}
         <div className="instrument-display p-5 md:p-6 rounded-2xl space-y-5">
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[var(--border-color)] pb-3">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--screen-text)]">
                 {categories.find((c) => c.id === category)?.label} Engine
@@ -324,16 +352,42 @@ export const ConverterMode: React.FC = () => {
             </div>
 
             {category === 'currency' && (
-              <button
-                onClick={() => {
-                  setTempRates(currencyRates);
-                  setIsEditRatesOpen(true);
-                }}
-                className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--chip-bg)] text-[var(--chip-text)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors shadow-sm"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
-                <span>Adjust FX Rates</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Live Real-Time Status indicator */}
+                <div
+                  title={lastUpdated ? `Live rate timestamp: ${lastUpdated}` : 'Live Real-Time Market Feed'}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--dock-bg)] text-[10px] font-bold text-[var(--screen-subtext)] border border-[var(--border-color)] shadow-sm"
+                >
+                  <span className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
+                  <span className="hidden sm:inline">
+                    {isSyncing ? 'Fetching...' : lastUpdated ? 'Live Feed' : 'Real-Time FX'}
+                  </span>
+                </div>
+
+                {/* Sync Live Rates Button */}
+                <button
+                  onClick={() => handleSyncLiveRates(true)}
+                  disabled={isSyncing}
+                  title="Update with latest live real-time market exchange rates"
+                  className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--chip-bg)] text-[var(--accent-primary)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Updating...' : 'Sync Live Rates'}</span>
+                </button>
+
+                {/* Adjust Custom Rates Button */}
+                <button
+                  onClick={() => {
+                    setTempRates(currencyRates);
+                    setIsEditRatesOpen(true);
+                  }}
+                  title="Manually inspect or override exchange rates"
+                  className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--chip-bg)] text-[var(--chip-text)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] transition-colors shadow-sm"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                  <span className="hidden sm:inline">Adjust Rates</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -483,10 +537,31 @@ export const ConverterMode: React.FC = () => {
             onClick={() => setIsEditRatesOpen(false)}
           />
           <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-highlight)] rounded-3xl p-6 shadow-2xl z-10 text-[var(--text-primary)] max-h-[85vh] flex flex-col hardware-chassis">
-            <h3 className="text-base font-bold mb-1">Currency Exchange Matrix</h3>
-            <p className="text-xs text-[var(--text-muted)] mb-4">
-              Configured against 1.00 USD base currency.
-            </p>
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
+              <div>
+                <h3 className="text-base font-bold mb-0.5">Currency Exchange Matrix</h3>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Live market rates relative to 1.00 USD base.
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  setIsSyncing(true);
+                  const result = await fetchLiveExchangeRates(tempRates);
+                  setIsSyncing(false);
+                  if (result.success && result.rates) {
+                    setTempRates(result.rates);
+                    showToast('Loaded latest live market rates into editor', 'success');
+                  }
+                }}
+                disabled={isSyncing}
+                title="Fetch live market exchange rates now"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--dock-bg)] text-[var(--accent-primary)] border border-[var(--border-color)] hover:border-[var(--border-highlight)] text-xs font-bold transition-colors shadow-sm disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Fetching...' : 'Fetch Live'}</span>
+              </button>
+            </div>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {tempRates.map((rate, idx) => (
