@@ -1,13 +1,13 @@
-# OmniCalc Pro 🧮⚡
+# OmniCalc Pro 
 ### Advanced Multi-Mode Scientific, Programmer, Financial, Converter & 2D Graphing Calculator
 
 OmniCalc Pro is an ultra-modern, high-precision web-based calculator application engineered with **React**, **Vite**, **TypeScript**, **Tailwind CSS**, and **Math.js**. Designed for engineers, programmers, students, and financial analysts, OmniCalc Pro delivers an all-in-one computational powerhouse with a fluid UI, tactile audio feedback, and rich data visualizations.
 
 ---
 
-## ✨ Key Features & Calculator Modes
+##  Key Features & Calculator Modes
 
-### 1. 🔬 Scientific Calculator Mode
+### 1.  Scientific Calculator Mode
 - **Full Expression Entry & Interactive Cursor Navigation**: Click anywhere in the expression or use the step arrows (← / →) to place the cursor and edit equations dynamically.
 - **Trigonometry & Hyperbolics**: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, with a **2nd** toggle for inverse functions (`asin`, `acos`, `atan`, `asinh`, `acosh`, `atanh`).
 - **DEG / RAD Switcher**: Real-time angle unit toggle with live visual badge and precision angle normalization.
@@ -17,7 +17,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 - **Memory Operations**: MC (Clear), MR (Recall), M+ (Add), M- (Subtract), MS (Store) with a live active memory indicator `[M]`.
 - **Live Preview**: Real-time evaluation preview shown beneath the formula line as you type.
 
-### 2. 💻 Programmer Calculator Mode
+### 2.  Programmer Calculator Mode
 - **Simultaneous Real-Time Base Conversion**: Displays live conversion across **HEX**, **DEC**, **OCT**, and **BIN**.
 - **Word Size Architecture**: Switch effortlessly between **QWORD (64-bit)**, **DWORD (32-bit)**, **WORD (16-bit)**, and **BYTE (8-bit)**.
 - **Signed / Unsigned Toggle**: Instant two's complement signed vs. unsigned decimal representations.
@@ -25,7 +25,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 - **Bitwise Operations**: `AND`, `OR`, `XOR`, `NOT`, `NAND`, `NOR`, Bit Shift Left (`<<`), Bit Shift Right (`>>`), Rotate Left (`ROL`), and Rotate Right (`ROR`).
 - **Dynamic Keypad Protection**: Automatically disables keys outside the active base (e.g. disabling 2–9 & A–F when in Binary mode).
 
-### 3. 🔄 Unit & Currency Converter Mode
+### 3.  Unit & Currency Converter Mode
 - **8 Measurement Categories**:
   1. **Length**: Meters, Kilometers, Centimeters, Millimeters, Miles, Yards, Feet, Inches, Nautical Miles.
   2. **Weight / Mass**: Kilograms, Grams, Milligrams, Metric Tons, Pounds, Ounces, Stones.
@@ -39,7 +39,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
   - Includes an **Edit Exchange Rates** manager to customize rates or test real-time currency scenarios.
 - **Equivalent Matrix**: Displays real-time equivalent values across all category units simultaneously.
 
-### 4. 📈 Financial & Mortgage Calculator Mode
+### 4.  Financial & Mortgage Calculator Mode
 - **Loan & Mortgage (EMI) Calculator**:
   - Computes Monthly EMI, Total Principal, and Total Interest.
   - Interactive Donut Breakdown Chart (Principal vs. Interest) powered by Recharts.
@@ -49,7 +49,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 - **Tip & Bill Splitter**:
   - Calculates tip amounts (10%, 15%, 18%, 20%, 25%, or custom), tax additions, and per-person breakdown.
 
-### 5. 📉 Interactive 2D Graphing Calculator Mode
+### 5.  Interactive 2D Graphing Calculator Mode
 - **HTML5 High-DPI Canvas Engine**: Plot $f(x)$ equations (e.g., $\sin(x)$, $x^2 - 4$, $x^3 - 3x$, $e^x$, $1/x$).
 - **Multi-Function Plotting**: Supports up to 5 simultaneous functions with custom color coding.
 - **Interactive Navigation**: Smooth drag-to-pan in any direction, mouse-wheel zooming, and zoom buttons.
@@ -58,17 +58,17 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 
 ---
 
-## ⚡ Core Power Features Across All Modes
+##  Core Power Features Across All Modes
 
 - **⌨️ Physical Keyboard Typing**: Full support for physical keyboards including Numpad, Enter (`=`), Backspace (`⌫`), Escape (`AC`), parentheses, operators (`+`, `-`, `*`, `/`, `^`, `%`), arrow keys, and hotkeys.
   - Press `?` or `Shift + /` anywhere to reveal the comprehensive Keyboard Shortcuts guide.
   - `Alt + 1` through `Alt + 5` for instant mode switching.
   - `Alt + H` to toggle the Calculation History drawer.
-- **📜 Calculation History Drawer**:
+- ** Calculation History Drawer**:
   - Persistent log of past calculations with timestamps and mode tags.
   - **Click-to-Recall**: Click any previous expression or result to load it into the active calculator input.
   - **Export Options**: One-click export of calculation history to **CSV** or **JSON**.
-- **🎨 4 Theme Customizer**:
+- ** 4 Theme Customizer**:
   1. **Modern Dark**: Sleek slate & indigo with soft glassmorphism.
   2. **Clean Light**: Crisp, high-contrast light theme.
   3. **Cyberpunk Neon**: Glowing cyan, magenta, and electric futuristic accents.
@@ -78,7 +78,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite
 - **Styling**: Tailwind CSS, PostCSS, Autoprefixer
@@ -90,7 +90,7 @@ OmniCalc Pro is an ultra-modern, high-precision web-based calculator application
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18 or higher recommended)
@@ -116,7 +116,7 @@ Visit `http://localhost:3000` in your web browser.
 
 ---
 
-## 📦 Production Build & Deployment
+##  Production Build & Deployment
 
 ### Build for Production
 ```bash
